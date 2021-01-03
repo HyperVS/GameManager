@@ -1,10 +1,12 @@
 const { MessageEmbed } = require('discord.js');
 const Discord = require('discord.js');
+const { prefix } = require('../config.json');
 
 module.exports = {
     name: 'delete',
     aliases: ['d'],
-    args: false,
+    args: true,
+    usage: `${prefix}d [category name]`,
     async execute(client, message, args) {
         let server = message.guild;
 

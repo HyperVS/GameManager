@@ -12,12 +12,7 @@ module.exports = {
     usage: `${prefix}q`,
 	execute(client, message, args){
         let server = message.guild;
-        if(args.length != 0){
-            const embed = new MessageEmbed();
-            embed.setColor(rlColor);
-            embed.setDescription(`<@!${message.author.id}> wrong usage of command! Correct usage: ${this.usage}`)
-            return message.channel.send(embed);
-        }
+    
         const queue = client.queue;
         if(queue.has(message.author.id)){
             return message.channel.send("You are already in the queue!");
