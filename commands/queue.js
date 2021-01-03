@@ -1,7 +1,10 @@
+
 const { MessageEmbed } = require('discord.js');
 const { rlColor } = require("../config.json");
 const { prefix, thumbnail, footer } = require('../config.json');
 const { collection } = require('../db/connection');
+const db = require('../db/orm');
+
 module.exports = {
 	name: 'queue',
 	aliases: ['q'],
@@ -19,7 +22,7 @@ module.exports = {
         if(queue.has(message.author.id)){
             return message.channel.send("You are already in the queue!");
         }
-        queue.set(message.author.id, queue.size+1)
+        queue.set(message.author.id, message.author.username)
         if(queue.size == 1){
             client.queueTime = new Date();
         }
@@ -36,38 +39,56 @@ module.exports = {
         embed.setFooter(footer);
         message.channel.send(embed);
 
-        if(queue.size == 1){
+        if(queue.size == 2){
             const users = Array.from(queue.keys());
-            const embed = new MessageEmbed();
-            embed.setColor(rlColor);
-            embed.addField('6 Players have joined the queue!', 'Voting will now commence.');
-            embed.addField('Votes:', '🇨 Captains\n\n🇷 Random\n\n🇧 Balanced')
-            // CREATE TEMP CATEGORY
-            let category = server.channel.create('')
-            // CREATE TEMP CHANNEL
-            let tempChannel = server.channel.create(`voting_${Math.floor(Math.random(9999))}`, {
-                permissionOverwrites: [
-                    {
-                        id: server.roles.everyone,
-                        deny: ['VIEW_CHANNEL']
-                    },
-                    {
-                        id: message.author.id,
-                        allow: ['VIEW_CHANNEL']
-                    }
-                ]
+            let channelPerms = [];
+            channelPerms.push({
+                id: server.roles.everyone,
+                deny: ['VIEW_CHANNEL']
+            })
+            users.forEach(userid => {
+                channelPerms.push({
+                    id: userid,
+                    allow: ['VIEW_CHANNEL']
+                })
+            })
+            db.createMatch(queue, matchID => {
+                server.channels.create(`match-${matchID}`, {
+                    type: 'category',
+                    permissionOverwrites: channelPerms
+                }).then(() => {
+                    server.channels.create(`match-${matchID}`, {
+                        permissionOverwrites: channelPerms,
+                        parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category")
+                    }).then(ch => {
+                        const embed = new MessageEmbed();
+                        embed.setColor(rlColor);
+                        embed.addField('6 Players have joined the queue!', 'Voting will now commence.');
+                        embed.addField('Votes:', '🇨 Captains\n\n🇷 Random\n\n🇧 Balanced')
+                        ch.send(embed)
+                        .then(em => {
+                            em.react("🇨")
+                            em.react("🇷")
+                            em.react("🇧")
+                            client.embeds.set(em.id, users)
+                            client.matches.set(`match-${matchID}`, users)
+                            queue.clear();
+                        });
+                    });
+                }).finally(() => {
+                    server.channels.create(`Team One`, {
+                        type: 'voice',
+                        permissionOverwrites: channelPerms,
+                        parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category")
+                    })
+                    server.channels.create(`Team Two`, {
+                        type: 'voice',
+                        permissionOverwrites: channelPerms,
+                        parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category")
+                    })
+                });
             });
-            // CREATE TEMP VOICE CHANNELS
-            let voiceOne = server.channel.create('Team 1');
-            let voiceTwo = server.channel.create('Team 2');
-            message.channel.send(embed)
-            .then(em => {
-                em.react("🇨")
-                em.react("🇷")
-                em.react("🇧")
-                client.embeds.set(em.id, users)
-                queue.clear();
-            });
+            
         }
     }
 }
