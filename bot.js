@@ -9,6 +9,7 @@ const db = require('./db/orm.js');
 client.embeds = new Discord.Collection();
 client.commands = new Discord.Collection();
 client.queue = new Discord.Collection();
+client.matches = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -74,13 +75,11 @@ connection.once('open', (err, cli) =>{
 	if(!err) console.log('Connected to the Mongo Database.');
 	else if (err) throw err;
 });
-
+const originalValue = new Map([[6636, 'Mercenary']]);
 connection.connect(err => {
 	if(err) throw err;
 	console.log("Connected to SQL Database");
 
 	db.createDatabase();
-	//db.createUser('Mercenary', 500, 0, 9999);
-	db.userExists('Mercenary', res => console.log(res));
-	//db.createMatch(JSON.stringify({'38495734985748': 'Mercenary', '3498573948759835': 'Hyper'}));
+	//db.getMatchByUser('6636', res => console.log(res));
 })
