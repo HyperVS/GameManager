@@ -20,7 +20,7 @@
   "dependencies": {
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
-    "mongoose": "^5.11.9"
+    "mysql": "^2.18.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.6"
