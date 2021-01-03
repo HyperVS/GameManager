@@ -1,7 +1,7 @@
 require('dotenv').config();
 const fs = require('fs');
 const Discord = require('discord.js');
-const { prefix } = require('./config.json');
+const { prefix, rlColor } = require('./config.json');
 const client = new Discord.Client();
 const connection = require('./db/connection.js');
 const db = require('./db/orm.js');
@@ -60,6 +60,13 @@ client.on('message', message => {
 
 	if (!command) return console.log(`ERROR: Command ${commandName} was used but not found.`);
 	
+	if((command.args == false && args.length != 0) || (command.args == true && args.length != 1)){
+		const embed = new Discord.MessageEmbed();
+		embed.setColor(rlColor);
+		embed.setDescription(`<@!${message.author.id}> wrong usage of command! Correct usage: ${command.usage}`)
+		return message.channel.send(embed);
+	}
+
     // dynamic command handling
 	try {
 		command.execute(client, message, args);

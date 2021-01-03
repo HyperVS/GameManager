@@ -9,12 +9,6 @@ module.exports = {
 	args: true,
 	usage: `${prefix}report [W/L]`,
 	execute(client, message, args){
-		if(args.length != 1){
-            const embed = new MessageEmbed();
-            embed.setColor(rlColor);
-            embed.setDescription(`<@!${message.author.id}> wrong usage of command! Correct usage: ${this.usage}`)
-            return message.channel.send(embed);
-		}
 		if(!global.findInMap(client.matches, message.author.id)) return;
 		//let matchID = parseInt(global.parseMatchId(message.channel.name));
 		let count = client.matches.get(message.channel.name);
