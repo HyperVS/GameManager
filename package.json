@@ -1,0 +1,28 @@
+{
+  "name": "gamemanager",
+  "version": "0.0.1",
+  "description": "A Game Manager bot for a private discord server.",
+  "main": "bot.js",
+  "scripts": {
+    "dev": "nodemon bot.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HyperVS/GameManager.git"
+  },
+  "author": "HyperVS",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HyperVS/GameManager/issues"
+  },
+  "homepage": "https://github.com/HyperVS/GameManager#readme",
+  "dependencies": {
+    "discord.js": "^12.5.1",
+    "dotenv": "^8.2.0",
+    "mongoose": "^5.11.9"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}
