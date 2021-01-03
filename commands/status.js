@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const { prefix, thumbnail, rlColor } = require('../config.json');
+const { prefix, footer, rlColor } = require('../config.json');
 
 module.exports = {
 	name: 'status',
@@ -10,7 +10,7 @@ module.exports = {
         if(args.length != 0){
             const embed = new MessageEmbed();
             embed.setColor(rlColor);
-            embed.setDescription(`<@!${message.author.id}> wrong usage of command! Correct usage: ${this.usage}`)
+            embed.setDescription(`<@${message.author.id}> wrong usage of command! Correct usage: ${this.usage}`)
             return message.channel.send(embed);
         }
 
@@ -31,13 +31,20 @@ module.exports = {
         //TODO: Dynamically retrieve game number
         const embed = new MessageEmbed();
         embed.setColor(rlColor);
-        embed.addField(`Game #${gameNumber} (Queue)`, `Queue started ${queueTime} seconds ago.`)
+        if(queueTime<= 60)
+            embed.addField(`Game #${gameNumber} (Queue)`, `Queue started ${queueTime} seconds ago.`);
+        else{
+            let minutes = Math.floor(queueTime/60);
+            let seconds = queueTime - minutes * 60;
+            if(minutes == 1)
+                embed.addField(`Game #${gameNumber} (Queue)`, `Queue started ${minutes} minute and ${seconds} seconds ago.`);
+            else embed.addField(`Game #${gameNumber} (Queue)`, `Queue started ${minutes} minutes and ${seconds} seconds ago.`);
+        }
         embed.addField('Type:', '3v3')
         embed.addField('Queue:', `${queueMembers}`)
-        embed.setFooter('6mans | Twisted\'s Tweakers');
+        embed.setFooter(footer);
         
         return message.channel.send(embed);
         
-
     }
 }

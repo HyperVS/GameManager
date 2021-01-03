@@ -1,9 +1,9 @@
-require('dotenv').config();
+const mysql = require('mysql');
 
-let mongoose = require('mongoose');
-let mongoDB = process.env.CONNECTION_STRING;
-mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true});
-let connection = mongoose.connection;
-connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
+var connection = mysql.createConnection({
+    host: '70.119.133.158',
+    user: 'access',
+    password: 'Qsaq0H2C8Qx711DZ'
+});
 
 module.exports = connection;

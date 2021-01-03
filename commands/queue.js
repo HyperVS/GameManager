@@ -1,6 +1,6 @@
 const { MessageEmbed } = require('discord.js');
 const { rlColor } = require("../config.json");
-const { prefix, thumbnail } = require('../config.json');
+const { prefix, thumbnail, footer } = require('../config.json');
 const { collection } = require('../db/connection');
 module.exports = {
 	name: 'queue',
@@ -8,6 +8,7 @@ module.exports = {
     args: false,
     usage: `${prefix}q`,
 	execute(client, message, args){
+        let server = message.guild;
         if(args.length != 0){
             const embed = new MessageEmbed();
             embed.setColor(rlColor);
@@ -32,8 +33,41 @@ module.exports = {
         }
         else embed.setTitle(`${queue.size} players are in the queue`);
         embed.setDescription(`<@${message.author.id}> has joined.`);
-        embed.setFooter('6mans | Twisted\'s Tweakers');
-        
-        return message.channel.send(embed);
+        embed.setFooter(footer);
+        message.channel.send(embed);
+
+        if(queue.size == 1){
+            const users = Array.from(queue.keys());
+            const embed = new MessageEmbed();
+            embed.setColor(rlColor);
+            embed.addField('6 Players have joined the queue!', 'Voting will now commence.');
+            embed.addField('Votes:', '🇨 Captains\n\n🇷 Random\n\n🇧 Balanced')
+            // CREATE TEMP CATEGORY
+            let category = server.channel.create('')
+            // CREATE TEMP CHANNEL
+            let tempChannel = server.channel.create(`voting_${Math.floor(Math.random(9999))}`, {
+                permissionOverwrites: [
+                    {
+                        id: server.roles.everyone,
+                        deny: ['VIEW_CHANNEL']
+                    },
+                    {
+                        id: message.author.id,
+                        allow: ['VIEW_CHANNEL']
+                    }
+                ]
+            });
+            // CREATE TEMP VOICE CHANNELS
+            let voiceOne = server.channel.create('Team 1');
+            let voiceTwo = server.channel.create('Team 2');
+            message.channel.send(embed)
+            .then(em => {
+                em.react("🇨")
+                em.react("🇷")
+                em.react("🇧")
+                client.embeds.set(em.id, users)
+                queue.clear();
+            });
+        }
     }
 }
