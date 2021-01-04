@@ -12,7 +12,7 @@ module.exports = {
 
         if(!message.member.roles.cache.find(r => r.name == "Developer")) return message.channel.send(`${message.author}, you are not authorized to use that command.`)
         try {
-            let cat = await server.channels.cache.find(c => c.name.toLowerCase() == args[0].toLowerCase() && c.type == "category");
+            let cat = await server.channels.cache.find(c => c.name.toLowerCase() == `match-${args[0].toLowerCase()}` && c.type == "category");
             cat.children.forEach(ch => ch.delete());
             cat.delete();
         }

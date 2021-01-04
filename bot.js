@@ -8,6 +8,7 @@ const db = require('./db/orm.js');
 const { FORMERR } = require('dns');
 const global = require('./global');
 const createIsCool = require('iscool');
+const { SSL_OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG } = require('constants');
 const isCool = createIsCool({
 	customBlacklist: [
 		'jew',
@@ -36,6 +37,9 @@ client.on('ready', () => {
 client.on('messageReactionAdd', (reaction, user) => {
 	if(user.bot) return;
 	let message = reaction.message, emoji  = reaction.emoji;
+	if(message.reactions.cache.filter(r => r.users.cache.has(user.id)).size >= 2) {
+		reaction.users.remove(user.id);
+	}
 
 	if(client.embeds.has(message.id)) {
 		let tmp = Array.from(client.embeds.values(message.id));
@@ -43,6 +47,7 @@ client.on('messageReactionAdd', (reaction, user) => {
 			reaction.users.remove(user.id);
 			user.send("You are not in that queue!").then(() => {});
 		}
+
 		else {
 			if(message.reactions.cache.size == 4) {
 				console.log('penis')

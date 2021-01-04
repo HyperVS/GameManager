@@ -34,7 +34,7 @@ module.exports = {
         embed.setFooter(footer);
         message.channel.send(embed);
 
-        if(queue.size == 6){
+        if(queue.size == 2){
             const users = Array.from(queue.keys());
             let channelPerms = [];
             channelPerms.push({
