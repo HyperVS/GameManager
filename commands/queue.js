@@ -11,7 +11,7 @@ module.exports = {
     args: false,
     usage: `${prefix}q`,
 	execute(client, message, args){
-        let server = message.guild;
+        const server = message.guild;
     
         const queue = client.queue;
         if(queue.has(message.author.id)){
@@ -34,7 +34,7 @@ module.exports = {
         embed.setFooter(footer);
         message.channel.send(embed);
 
-        if(queue.size == 2){
+        if(queue.size == 1){
             const users = Array.from(queue.keys());
             let channelPerms = [];
             channelPerms.push({
