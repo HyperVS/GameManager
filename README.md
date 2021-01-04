@@ -14,6 +14,18 @@ db.createUser(user.id, res => {
 })
 ```
 
+> getUserInMatch
+```javascript
+db.getUserInMatch(user.id, res => {
+
+})
+```
+
+> updateUserInMatch
+```javascript
+db.updateUserInMatch(user.id, true);
+```
+
 > createMatch
 ```javascript
 db.createMatch(new Map());
