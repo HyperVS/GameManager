@@ -102,4 +102,8 @@ connection.connect(err => {
 
 	db.createDatabase();
 	//db.getMatchByUser('6636', res => console.log(res));
+	//db.createUser('6636');
+	db.getUserInMatch('6636', res => {
+		console.log(res);
+	})
 })
