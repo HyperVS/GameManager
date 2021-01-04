@@ -20,7 +20,7 @@ client.embeds = new Discord.Collection();
 client.commands = new Discord.Collection();
 client.queue = new Discord.Collection();
 client.matches = new Discord.Collection();
-client.admin = new Discord.Collection();
+client.muted = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -54,7 +54,7 @@ client.on('messageReactionAdd', (reaction, user) => {
 client.on('message', message => {
 	if (!message.guild || message.author.bot) return;  
 
-	if(!isCool(message.content.toLocaleLowerCase())) message.delete().then(() => message.channel.send(`${message.author}, please refrain from using inappropriate words.`));	
+	if(!isCool(message.content.toLocaleLowerCase())) message.delete().then(() => message.channel.send(`${message.author}, please refrain from using inappropriate words.`));
 
 	// chat logger
 	let log = `${message.member.user.tag} (${message.member.user.id}): ${message}`;
