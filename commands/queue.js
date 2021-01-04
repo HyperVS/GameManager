@@ -34,7 +34,7 @@ module.exports = {
         embed.setFooter(footer);
         message.channel.send(embed);
 
-        if(queue.size == 2){
+        if(queue.size == 6){
             const users = Array.from(queue.keys());
             let channelPerms = [];
             channelPerms.push({
@@ -74,12 +74,14 @@ module.exports = {
                     server.channels.create(`Team One`, {
                         type: 'voice',
                         permissionOverwrites: channelPerms,
-                        parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category")
+                        parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category"),
+                        userLimit: 3
                     })
                     server.channels.create(`Team Two`, {
                         type: 'voice',
                         permissionOverwrites: channelPerms,
-                        parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category")
+                        parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category"),
+                        userLimit: 3
                     })
                 });
             });

@@ -5,11 +5,22 @@ const { prefix, rlColor } = require('./config.json');
 const client = new Discord.Client();
 const connection = require('./db/connection.js');
 const db = require('./db/orm.js');
+const { FORMERR } = require('dns');
+const global = require('./global');
+const createIsCool = require('iscool');
+const isCool = createIsCool({
+	customBlacklist: [
+		'jew',
+		'gay',
+		'hitler'
+	]
+});
 
 client.embeds = new Discord.Collection();
 client.commands = new Discord.Collection();
 client.queue = new Discord.Collection();
 client.matches = new Discord.Collection();
+client.admin = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -43,6 +54,8 @@ client.on('messageReactionAdd', (reaction, user) => {
 client.on('message', message => {
 	if (!message.guild || message.author.bot) return;  
 
+	if(!isCool(message.content.toLocaleLowerCase())) message.delete().then(() => message.channel.send(`${message.author}, please refrain from using inappropriate words.`));	
+
 	// chat logger
 	let log = `${message.member.user.tag} (${message.member.user.id}): ${message}`;
 	fs.appendFile('chat.txt', log + '\n', err => {
@@ -60,7 +73,7 @@ client.on('message', message => {
 
 	if (!command) return console.log(`ERROR: Command ${commandName} was used but not found.`);
 	
-	if((command.args == false && args.length != 0) || (command.args == true && args.length != 1)){
+	if((command.args == false && args.length != 0) || (command.args == true && args.length < 1)){
 		const embed = new Discord.MessageEmbed();
 		embed.setColor(rlColor);
 		embed.setDescription(`<@!${message.author.id}> wrong usage of command! Correct usage: ${command.usage}`)
