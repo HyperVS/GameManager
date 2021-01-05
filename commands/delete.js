@@ -14,7 +14,7 @@ module.exports = {
         if(!message.member.roles.cache.find(r => r.name == "Developer")) return message.channel.send(`${message.author}, you are not authorized to use that command.`)
         try {
             // Dev mode: delete all lobby channels
-            if (process.env.DEV_MODE == "TRUE" && args[0] == "all") {
+            if (process.env.DEV_MODE == "TRUE" && args[0].toLowerCase() == "all") {
                 server.channels.cache.forEach((channel) => {
                     if (channel.name.startsWith("match-") && channel.type == "category") {
                         channel.children.forEach((child) =>  child.delete());
@@ -24,7 +24,6 @@ module.exports = {
             }
             else {
                 let cat = await server.channels.cache.find(c => c.name.toLowerCase() == `match-${args[0].toLowerCase()}` && c.type == "category");
-    
                 cat.children.forEach(ch => ch.delete());
                 cat.delete();
             }

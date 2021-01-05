@@ -5,10 +5,8 @@ const { prefix, rlColor } = require('./config.json');
 const client = new Discord.Client();
 const connection = require('./db/connection.js');
 const db = require('./db/orm.js');
-const { FORMERR } = require('dns');
 const global = require('./global');
 const createIsCool = require('iscool');
-const { SSL_OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG } = require('constants');
 const isCool = createIsCool({
 	customBlacklist: [
 		'jew',
@@ -96,10 +94,6 @@ client.on('message', message => {
 
 client.login(process.env.BOT_TOKEN);
 
-connection.once('open', (err, cli) =>{
-	if(!err) console.log('Connected to the Mongo Database.');
-	else if (err) throw err;
-});
 const originalValue = new Map([[6636, 'Mercenary']]);
 connection.connect(err => {
 	if(err) throw err;
