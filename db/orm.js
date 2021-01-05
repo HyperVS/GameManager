@@ -72,6 +72,11 @@ const functions = {
             }
         })
     },
+    deleteMatch: (matchID, cb) => {
+        sqlConn.query("DELETE FROM `matches` WHERE `id` = ?", [matchID], (err, res) =>{
+            if(err) throw err;
+        })
+    },
     getMatchByUser: (userid, cb) => {
         sqlConn.query("SELECT * FROM `matches` WHERE ? IN (`users`)", [userid], (err, res) => {
             if(err) throw err;
