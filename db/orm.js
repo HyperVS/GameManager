@@ -72,8 +72,8 @@ const functions = {
             }
         })
     },
-    deleteMatch: (matchID, cb) => {
-        sqlConn.query("DELETE FROM `matches` WHERE `id` = ?", [matchID], (err, res) =>{
+    deleteMatch: (matchID) => {
+        sqlConn.query("DELETE FROM `matches` WHERE `id` = ?", [matchID], (err, _) => {
             if(err) throw err;
         })
     },
