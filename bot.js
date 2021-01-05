@@ -6,14 +6,7 @@ const client = new Discord.Client();
 const connection = require('./db/connection.js');
 const db = require('./db/orm.js');
 const global = require('./global');
-const createIsCool = require('iscool');
-const isCool = createIsCool({
-	customBlacklist: [
-		'jew',
-		'gay',
-		'hitler'
-	]
-});
+const isCool = require("./isCool")
 
 client.embeds = new Discord.Collection();
 client.commands = new Discord.Collection();
@@ -55,9 +48,9 @@ client.on('messageReactionAdd', (reaction, user) => {
 })
 
 client.on('message', message => {
-	if (!message.guild || message.author.bot) return;  
-
-	if(!isCool(message.content.toLocaleLowerCase())) message.delete().then(() => message.channel.send(`${message.author}, please refrain from using inappropriate words.`));
+	if (!message.guild || message.author.bot) return;
+	
+	isCool(message);
 
 	// chat logger
 	let log = `${message.member.user.tag} (${message.member.user.id}): ${message}`;
@@ -74,7 +67,7 @@ client.on('message', message => {
 	const command = client.commands.get(commandName)
 		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
-	if (!command) return console.log(`ERROR: Command ${commandName} was used but not found.`);
+	if (!command) return console.log(`ERROR: Command ${commandName} does not exist!`);
 	
 	if((command.args == false && args.length != 0) || (command.args == true && args.length < 1)){
 		const embed = new Discord.MessageEmbed();

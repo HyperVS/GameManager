@@ -35,7 +35,7 @@ module.exports = {
         embed.setFooter(footer);
         message.channel.send(embed);
 
-        if(queue.size == 1){
+        if(queue.size == 1){    
             const users = Array.from(queue.keys());
             let voicePerms = [{
                 id: server.roles.everyone,
@@ -54,51 +54,86 @@ module.exports = {
                     id: userid,
                     allow: ['CONNECT']
                 })
-            })
+            });
             db.createMatch(queue, matchID => {
-                server.channels.create(`match-${matchID}`, {type: 'category'});
-                server.channels.create(`Match ${matchID} Lobby`, {
-                    type: 'voice',
-                    permissionOverwrites: voicePerms,
-                    parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category"),
-                    userLimit: 6
+                queue.clear();
+                server.channels.create(`match-${matchID}`, {type: 'category'})
+                .then(() => {
+                    server.channels.create(`Match ${matchID} Lobby`, {
+                        type: 'voice',
+                        permissionOverwrites: voicePerms,
+                        parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category"),
+                        userLimit: 6
+                    })
+                    .then(async channel => {
+                        let redirectLink = await channel.createInvite({
+                            maxAge: 120, // 2 minutes
+                            maxUses: 6 // 6 players
+                        })
+                        server.channels.create(`match-${matchID}`, {
+                            permissionOverwrites: textPerms,
+                            parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category")
+                        })
+                        .then((channel) => {
+                            const embed = new MessageEmbed();
+                            embed.setColor(rlColor);
+                            embed.setTitle('6 Players have joined the queue!');
+                            embed.addField('Voting will begin in:', `<#${channel.id}>`)
+                            embed.setDescription(`[Click here to join the game lobby!](${redirectLink})`)
+                            embed.setFooter(footer);
+                            embed.setThumbnail(thumbnail);
+                            message.channel.send(embed)
+                            const em = new MessageEmbed();
+                            em.setColor(rlColor);
+                            em.addField('6 Players have joined the queue!', 'Voting will now commence.');
+                            em.addField('Votes:', '🇨 Captains\n\n🇷 Random\n\n🇧 Balanced')
+                            channel.send(em)
+                            .then(em => {
+                                em.react("🇨")
+                                em.react("🇷")
+                                em.react("🇧")
+                                client.embeds.set(em.id, users)
+                                client.matches.set(`match-${matchID}`, users)
+                            });
+                        });
+                    });
                 });
-            })
-            // .then(() => {
-            // server.channels.create(`match-${matchID}`, {
-            //     permissionOverwrites: textPerms,
-            //     parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category")
-            // })
-            // .then(ch => {
-            //             const embed = new MessageEmbed();
-            //             embed.setColor(rlColor);
-            //             embed.addField('6 Players have joined the queue!', 'Voting will now commence.');
-            //             embed.addField('Votes:', '🇨 Captains\n\n🇷 Random\n\n🇧 Balanced')
-            //             ch.send(embed)
-            //             .then(em => {
-            //                 em.react("🇨")
-            //                 em.react("🇷")
-            //                 em.react("🇧")
-            //                 client.embeds.set(em.id, users)
-            //                 client.matches.set(`match-${matchID}`, users)
-            //                 queue.clear();
-            //             });
-            //         });
-            //     }).finally(() => {
-            //         server.channels.create(`Team One`, {
-            //             type: 'voice',
-            //             permissionOverwrites: voicePerms,
-            //             parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category"),
-            //             userLimit: 3
-            //         })
-            //         server.channels.create(`Team Two`, {
-            //             type: 'voice',
-            //             permissionOverwrites: voicePerms,
-            //             parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category"),
-            //             userLimit: 3
-            //         })
-            //     });
-            // });
-        }
+            });
+        };
     }
 }
+// .then(() => {
+// server.channels.create(`match-${matchID}`, {
+//     permissionOverwrites: textPerms,
+//     parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category")
+// })
+// .then(ch => {
+//             const embed = new MessageEmbed();
+//             embed.setColor(rlColor);
+//             embed.addField('6 Players have joined the queue!', 'Voting will now commence.');
+//             embed.addField('Votes:', '🇨 Captains\n\n🇷 Random\n\n🇧 Balanced')
+//             ch.send(embed)
+//             .then(em => {
+//                 em.react("🇨")
+//                 em.react("🇷")
+//                 em.react("🇧")
+//                 client.embeds.set(em.id, users)
+//                 client.matches.set(`match-${matchID}`, users)
+//                 queue.clear();
+//             });
+//         });
+//     }).finally(() => {
+//         server.channels.create(`Team One`, {
+//             type: 'voice',
+//             permissionOverwrites: voicePerms,
+//             parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category"),
+//             userLimit: 3
+//         })
+//         server.channels.create(`Team Two`, {
+//             type: 'voice',
+//             permissionOverwrites: voicePerms,
+//             parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category"),
+//             userLimit: 3
+//         })
+//     });
+// });
