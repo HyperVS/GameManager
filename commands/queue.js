@@ -19,10 +19,8 @@ module.exports = {
             return message.channel.send("You are already in the queue!");
         }
         queue.set(message.author.id, message.author.username)
-        if(queue.size == 1){
-            client.queueTime = new Date();
-        }
-
+        if(queue.size == 1) client.queueTime = new Date();
+        
         const embed = new MessageEmbed();
         embed.setColor(rlColor);
         if(queue.size == 1){
@@ -36,7 +34,7 @@ module.exports = {
         message.channel.send(embed);
 
         if(queue.size == 1){    
-            const users = Array.from(queue.keys());
+            client.usersArray = Array.from(queue.keys());
             let voicePerms = [{
                 id: server.roles.everyone,
                 deny: ['CONNECT']
@@ -45,7 +43,7 @@ module.exports = {
                 id: server.roles.everyone,
                 deny: ['VIEW_CHANNEL']
             }];
-            users.forEach(userid => {
+            client.usersArray.forEach(userid => {
                 textPerms.push({
                     id: userid,
                     allow: ['VIEW_CHANNEL']
@@ -66,6 +64,7 @@ module.exports = {
                         userLimit: 6
                     })
                     .then(async channel => {
+                        let voiceChannelID = channel.id;
                         let redirectLink = await channel.createInvite({
                             maxAge: 120, // 2 minutes
                             maxUses: 6 // 6 players
@@ -74,27 +73,16 @@ module.exports = {
                             permissionOverwrites: textPerms,
                             parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category")
                         })
-                        .then((channel) => {
+                        .then((textChannel) => {
+                            client.channelIDS.set(voiceChannelID, textChannel);
                             const embed = new MessageEmbed();
                             embed.setColor(rlColor);
                             embed.setTitle('6 Players have joined the queue!');
-                            embed.addField('Voting will begin in:', `<#${channel.id}>`)
                             embed.setDescription(`[Click here to join the game lobby!](${redirectLink})`)
+                            embed.addField('Voting will begin once all players have joined the lobby!', 'You have 1 minute to join the lobby')
                             embed.setFooter(footer);
                             embed.setThumbnail(thumbnail);
-                            message.channel.send(embed)
-                            const em = new MessageEmbed();
-                            em.setColor(rlColor);
-                            em.addField('6 Players have joined the queue!', 'Voting will now commence.');
-                            em.addField('Votes:', '🇨 Captains\n\n🇷 Random\n\n🇧 Balanced')
-                            channel.send(em)
-                            .then(em => {
-                                em.react("🇨")
-                                em.react("🇷")
-                                em.react("🇧")
-                                client.embeds.set(em.id, users)
-                                client.matches.set(`match-${matchID}`, users)
-                            });
+                            message.channel.send(embed);
                         });
                     });
                 });

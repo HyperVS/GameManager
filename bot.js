@@ -6,13 +6,15 @@ const client = new Discord.Client();
 const connection = require('./db/connection.js');
 const db = require('./db/orm.js');
 const global = require('./global');
-const isCool = require("./isCool")
+const isCool = require("./isCool");
 
 client.embeds = new Discord.Collection();
 client.commands = new Discord.Collection();
 client.queue = new Discord.Collection();
 client.matches = new Discord.Collection();
+client.channelIDS = new Discord.Collection();
 client.muted = new Discord.Collection();
+client.counts = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -28,23 +30,56 @@ client.on('ready', () => {
 client.on('messageReactionAdd', (reaction, user) => {
 	if(user.bot) return;
 	let message = reaction.message, emoji  = reaction.emoji;
-	if(message.reactions.cache.filter(r => r.users.cache.has(user.id)).size >= 2) {
-		reaction.users.remove(user.id);
-	}
-
+	let counts = client.counts;
+	
 	if(client.embeds.has(message.id)) {
-		let tmp = Array.from(client.embeds.values(message.id));
-		if(!tmp[0].includes(user.id)) {
+		if(message.reactions.cache.filter(r => r.users.cache.has(user.id)).size >= 2) {
 			reaction.users.remove(user.id);
-			user.send("You are not in that queue!").then(() => {});
 		}
+		let tmp = Array.from(client.embeds.values(message.id));
+		if(!tmp[0].includes(user.id)) reaction.users.remove(user.id);
 
-		else {
-			if(message.reactions.cache.size == 4) {
-				console.log('penis')
+		let mostVotes = '';
+		
+		if(reaction.emoji.name == '🇨' && reaction.count > 1) counts.get('c').count++;
+		if(reaction.emoji.name == '🇷' && reaction.count > 1) counts.get('r').count++;
+		if(reaction.emoji.name == '🇧' && reaction.count > 1) counts.get('b').count++;
+
+		if(counts.get('c').count + counts.get('r').count + counts.get('b').count === 3){
+			for(let name of counts.keys()){
+				if(mostVotes !== '' && counts.get(name).count > counts.get(mostVotes).count) mostVotes = name; 
+				else if(mostVotes === '') mostVotes = name;
 			}
+			counts.clear();
+			console.log(mostVotes);
+			//TODO: do something with mostVotes
+			
 		}
 	}
+})
+
+client.on("voiceStateUpdate", (oldMember, newMember) => {
+	if(!client.channelIDS.has(newMember.channelID)) return;
+	let voiceChannel = client.channels.cache.get(newMember.channelID);
+	let textChannel = client.channelIDS.get(newMember.channelID);
+	if(voiceChannel.members.size != 1) return;
+	db.getMatchID(matchID => {
+		const embed = new Discord.MessageEmbed();
+		embed.setColor(rlColor);
+		embed.addField('6 Players have joined the lobby!', 'Voting will now commence.');
+		embed.addField('Votes:', '🇨 Captains\n\n🇷 Random\n\n🇧 Balanced')
+		textChannel.send(embed)
+		.then(embed => {
+			embed.react("🇨")
+			embed.react("🇷")
+			embed.react("🇧")
+			client.embeds.set(embed.id, client.usersArray)
+			client.matches.set(`match-${matchID}`, client.usersArray)
+			client.counts.set('c', {count: 0})
+			client.counts.set('r', {count: 0})
+			client.counts.set('b', {count: 0})
+		});
+	})
 })
 
 client.on('message', message => {
@@ -87,15 +122,12 @@ client.on('message', message => {
 
 client.login(process.env.BOT_TOKEN);
 
-const originalValue = new Map([[6636, 'Mercenary']]);
 connection.connect(err => {
 	if(err) throw err;
 	console.log("Connected to SQL Database");
 
 	db.createDatabase();
-	//db.getMatchByUser('6636', res => console.log(res));
-	//db.createUser('6636');
-	db.getUserInMatch('6636', res => {
+	db.getMatchID(res => {
 		console.log(res);
 	})
 })

@@ -89,6 +89,12 @@ const functions = {
                 cb(matches);
             }
         })
+    },
+    getMatchID: (cb) => {
+        sqlConn.query("SELECT * FROM `matches`", (err, res) => {
+            if(err) throw err;
+            if(cb) cb(res.length);
+        })
     }
 }
 
