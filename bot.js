@@ -16,6 +16,7 @@ client.matches = new Discord.Collection();
 client.channelIDS = new Discord.Collection();
 client.muted = new Discord.Collection();
 client.counts = new Discord.Collection();
+client.mmrs = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -59,8 +60,10 @@ client.on('messageReactionAdd', (reaction, user) => {
 					voting.captains(message, matchID, users)
 					break;
 				case 'r':
+					voting.random(message, matchID, users)
 					break;
 				case 'b':
+					voting.balanced(client, message, matchID, users)
 					break;
 			}
 		})
@@ -75,21 +78,20 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
 	if(voiceChannel.members.size != max) return;
 	db.getMatchID(matchID => {
 		const embed = new Discord.MessageEmbed();
-		embed.setColor(rlColor);
-		embed.addField('6 Players have joined the lobby!', 'Voting will now commence.');
-		embed.addField('Votes:', '🇨 Captains\n\n🇷 Random\n\n🇧 Balanced')
+		embed.setColor(rlColor)
+		.addField('6 Players have joined the lobby!', 'Voting will now commence.')
+		.addField('Votes:', '🇨 Captains\n\n🇷 Random\n\n🇧 Balanced');
 		textChannel.send(embed)
 		.then(embed => {
+			client.embeds.set(embed.id, client.usersArray)
+			client.matches.set(`match-${matchID}`, client.usersArray)
+			client.counts.set('c', {count: 0})
+			client.counts.set('r', {count: 0})
+			client.counts.set('b', {count: 0})
 			embed.react("🇨")
 			.then(embed.react("🇷"))
 			.then(embed.react("🇧"))
-			.then(() => {
-				client.embeds.set(embed.id, client.usersArray)
-				client.matches.set(`match-${matchID}`, client.usersArray)
-				client.counts.set('c', {count: 0})
-				client.counts.set('r', {count: 0})
-				client.counts.set('b', {count: 0})
-			})
+		.catch(err => console.log(err));
 		});
 	})
 })
