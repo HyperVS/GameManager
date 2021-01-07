@@ -1,12 +1,13 @@
 require('dotenv').config();
 const fs = require('fs');
 const Discord = require('discord.js');
-const { prefix, rlColor } = require('./config.json');
+const { prefix, rlColor, max } = require('./config.json');
 const client = new Discord.Client();
 const connection = require('./db/connection.js');
 const db = require('./db/orm.js');
 const global = require('./global');
 const isCool = require("./isCool");
+const voting = require('./voting');
 
 client.embeds = new Discord.Collection();
 client.commands = new Discord.Collection();
@@ -36,8 +37,8 @@ client.on('messageReactionAdd', (reaction, user) => {
 		if(message.reactions.cache.filter(r => r.users.cache.has(user.id)).size >= 2) {
 			reaction.users.remove(user.id);
 		}
-		let tmp = Array.from(client.embeds.values(message.id));
-		if(!tmp[0].includes(user.id)) reaction.users.remove(user.id);
+		let users = Array.from(client.embeds.values(message.id));
+		if(!users[0].includes(user.id)) reaction.users.remove(user.id);
 
 		let mostVotes = '';
 		
@@ -45,24 +46,33 @@ client.on('messageReactionAdd', (reaction, user) => {
 		if(reaction.emoji.name == '🇷' && reaction.count > 1) counts.get('r').count++;
 		if(reaction.emoji.name == '🇧' && reaction.count > 1) counts.get('b').count++;
 
-		if(counts.get('c').count + counts.get('r').count + counts.get('b').count === 3){
+		if(counts.get('c').count + counts.get('r').count + counts.get('b').count == max){
 			for(let name of counts.keys()){
 				if(mostVotes !== '' && counts.get(name).count > counts.get(mostVotes).count) mostVotes = name; 
 				else if(mostVotes === '') mostVotes = name;
 			}
 			counts.clear();
-			console.log(mostVotes);
-			//TODO: do something with mostVotes
-			
 		}
+		db.getMatchID(matchID => {
+			switch(mostVotes){
+				case 'c':
+					voting.captains(message, matchID, users)
+					break;
+				case 'r':
+					break;
+				case 'b':
+					break;
+			}
+		})
 	}
 })
 
 client.on("voiceStateUpdate", (oldMember, newMember) => {
 	if(!client.channelIDS.has(newMember.channelID)) return;
+	if(oldMember.voiceChannel !== undefined || newMember.channelID === oldMember.channelID) return;
 	let voiceChannel = client.channels.cache.get(newMember.channelID);
 	let textChannel = client.channelIDS.get(newMember.channelID);
-	if(voiceChannel.members.size != 1) return;
+	if(voiceChannel.members.size != max) return;
 	db.getMatchID(matchID => {
 		const embed = new Discord.MessageEmbed();
 		embed.setColor(rlColor);
@@ -71,20 +81,21 @@ client.on("voiceStateUpdate", (oldMember, newMember) => {
 		textChannel.send(embed)
 		.then(embed => {
 			embed.react("🇨")
-			embed.react("🇷")
-			embed.react("🇧")
-			client.embeds.set(embed.id, client.usersArray)
-			client.matches.set(`match-${matchID}`, client.usersArray)
-			client.counts.set('c', {count: 0})
-			client.counts.set('r', {count: 0})
-			client.counts.set('b', {count: 0})
+			.then(embed.react("🇷"))
+			.then(embed.react("🇧"))
+			.then(() => {
+				client.embeds.set(embed.id, client.usersArray)
+				client.matches.set(`match-${matchID}`, client.usersArray)
+				client.counts.set('c', {count: 0})
+				client.counts.set('r', {count: 0})
+				client.counts.set('b', {count: 0})
+			})
 		});
 	})
 })
 
 client.on('message', message => {
 	if (!message.guild || message.author.bot) return;
-	
 	isCool(message);
 
 	// chat logger

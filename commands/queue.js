@@ -1,9 +1,6 @@
-
-const { match } = require('assert');
 const { MessageEmbed } = require('discord.js');
-const { rlColor } = require("../config.json");
+const { rlColor, max } = require("../config.json");
 const { prefix, thumbnail, footer } = require('../config.json');
-const { collection } = require('../db/connection');
 const db = require('../db/orm');
 
 module.exports = {
@@ -33,7 +30,7 @@ module.exports = {
         embed.setFooter(footer);
         message.channel.send(embed);
 
-        if(queue.size == 1){    
+        if(queue.size == max){    
             client.usersArray = Array.from(queue.keys());
             let voicePerms = [{
                 id: server.roles.everyone,
@@ -53,6 +50,11 @@ module.exports = {
                     allow: ['CONNECT']
                 })
             });
+            let queueMembers = '';
+            for(let member of queue.keys()){
+                if(queueMembers != '') queueMembers += ',';
+                queueMembers += `<@${member}>`;
+            };
             db.createMatch(queue, matchID => {
                 queue.clear();
                 server.channels.create(`match-${matchID}`, {type: 'category'})
@@ -76,13 +78,16 @@ module.exports = {
                         .then((textChannel) => {
                             client.channelIDS.set(voiceChannelID, textChannel);
                             const embed = new MessageEmbed();
-                            embed.setColor(rlColor);
-                            embed.setTitle('6 Players have joined the queue!');
-                            embed.setDescription(`[Click here to join the game lobby!](${redirectLink})`)
-                            embed.addField('Voting will begin once all players have joined the lobby!', 'You have 1 minute to join the lobby')
-                            embed.setFooter(footer);
-                            embed.setThumbnail(thumbnail);
+                            embed.setColor(rlColor)
+                                .setTitle('6 Players have joined the queue!')
+                                .setDescription(`Voting will begin once all players have joined the lobby! \n[Click here to join the game lobby!](${redirectLink})`)
+                                .addField('Players:', `${queueMembers}`)
+                                .setFooter(footer)
+                                .setThumbnail(thumbnail);
                             message.channel.send(embed);
+                            client.usersArray.forEach(userid => {
+                                client.users.cache.get(userid).send(embed);
+                            })
                         });
                     });
                 });
