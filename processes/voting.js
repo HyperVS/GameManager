@@ -1,7 +1,7 @@
 const { MessageEmbed } = require('discord.js');
-const { rlColor, footer } = require('./config.json');
+const { rlColor, footer } = require('../config.json');
 const global = require('./global');
-const db = require('./db/orm');
+const db = require('../db/orm');
 
 exports.captains = (message, matchID, users) => {
     let players = users[0];
@@ -55,17 +55,26 @@ exports.random = (message, matchID, users) => {
 
 exports.balanced = (client, message, matchID, users) => {
     //TODO: balanced teams
-    let players = users[0];
-    let mmrs = [];
-    players.forEach(userid => {
+    let players = new Map();
+    // users[0].forEach(userid => {
+    //     db.getMmr(userid, (mmr) => {
+    //         players.set(mmr, userid);
+    //     })
+    // })
+    let m = []
+    console.log(users[0]);
+    for(let userid of users[0]){
         db.getMmr(userid, (mmr) => {
-            mmrs.push(mmr);
-            client.mmrs.set(mmr, userid);
+            m.push(mmr);
         })
-    })
-    mmrs.sort((a,b) => {return b-a}); //descending order
-    let team1 = [client.mmrs.get(mmrs[0]), client.mmrs.get(mmrs[3]), client.mmrs.get(mmrs[4])];
-    let team2 = [client.mmrs.get(mmrs[1]), client.mmrs.get(mmrs[2]), client.mmrs.get(mmrs[5])];
+    }
+    console.log(m);
+    console.log(players);
+    let mmrs = new Map([...players.entries()].sort((a,b) => b[0] - a[0]))
+    //mmrs.sort((a,b) => {return b-a}); //descending order
+    
+    let team1 = [[...mmrs][0], [...mmrs][3], [...mmrs][4]];
+    let team2 = [[...mmrs][1], [...mmrs][2], [...mmrs][5]];
     let t1Players = '';
     let t2Players = '';
     for(let player of team1){
