@@ -5,14 +5,14 @@ const db = require('../db/orm');
 module.exports = {
 	name: 'status',
 	aliases: [],
-    args: false,
+    args: 0,
     usage: `${prefix}status`,
 	execute(client, message, args){
         const queue = client.queue;
         if(queue.size == 0){
             const embed = new MessageEmbed();
-            embed.setColor(rlColor);
-            embed.setDescription(`<@!${message.author.id}> there is no active queue right now.`)
+            embed.setColor(rlColor)
+            .setDescription(`<@!${message.author.id}> there is no active queue right now.`)
             return message.channel.send(embed);
         }
         let queueMembers = '';

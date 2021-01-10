@@ -6,14 +6,16 @@ const db = require('../db/orm');
 module.exports = {
 	name: 'queue',
 	aliases: ['q'],
-    args: false,
-    usage: `${prefix}q`,
+    args: 0,
+    usage: `${prefix}queue`,
 	execute(client, message, args){
         const server = message.guild;
-    
         const queue = client.queue;
         if(queue.has(message.author.id)){
-            return message.channel.send("You are already in the queue!");
+            const embed = new MessageEmbed();
+            embed.setColor(rlColor)
+            .setDescription(`<@!${message.author.id}> you are already in the queue!`);
+            return message.channel.send(embed);
         }
         queue.set(message.author.id, message.author.username)
         if(queue.size == 1) client.queueTime = new Date();

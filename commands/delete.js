@@ -6,8 +6,8 @@ require('dotenv').config();
 module.exports = {
     name: 'delete',
     aliases: ['d'],
-    args: true,
-    usage: `${prefix}d [category name]`,
+    args: 1,
+    usage: `${prefix}d [category name / all]`,
     async execute(client, message, args) {
         let server = message.guild;
 

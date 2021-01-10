@@ -1,12 +1,12 @@
 const { MessageEmbed } = require('discord.js');
 const { rlColor, prefix } = require('../config.json');
-const global = require('../global');
+const global = require('../processes/global');
 const db = require('../db/orm');
 
 module.exports = {
 	name: 'report',
-	aliases: [],
-	args: true,
+	aliases: ['r'],
+	args: 1,
 	usage: `${prefix}report [W/L]`,
 	execute(client, message, args){
 		if(!global.findInMap(client.matches, message.author.id)) return; 
