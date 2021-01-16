@@ -10,6 +10,7 @@ client.matches = new Discord.Collection();
 client.channelIDS = new Discord.Collection();
 client.muted = new Discord.Collection();
 client.counts = new Discord.Collection();
+client.players = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 commandFiles.forEach(file => {
