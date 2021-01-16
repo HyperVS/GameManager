@@ -17,6 +17,7 @@ client.channelIDS = new Discord.Collection();
 client.muted = new Discord.Collection();
 client.counts = new Discord.Collection();
 client.mmrs = new Discord.Collection();
+client.timer = null;
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
