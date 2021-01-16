@@ -1,25 +1,22 @@
 require('dotenv').config();
 const fs = require('fs');
 const Discord = require('discord.js');
-const { prefix, rlColor } = require('./config.json');
+const { prefix, rlColor, max } = require('./config.json');
 const client = new Discord.Client();
 const connection = require('./db/connection.js');
 const db = require('./db/orm.js');
 const global = require('./global');
-const createIsCool = require('iscool');
-const isCool = createIsCool({
-	customBlacklist: [
-		'jew',
-		'gay',
-		'hitler'
-	]
-});
+const isCool = require("./isCool");
+const voting = require('./voting');
 
 client.embeds = new Discord.Collection();
 client.commands = new Discord.Collection();
 client.queue = new Discord.Collection();
 client.matches = new Discord.Collection();
+client.channelIDS = new Discord.Collection();
 client.muted = new Discord.Collection();
+client.counts = new Discord.Collection();
+client.mmrs = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
@@ -35,29 +32,73 @@ client.on('ready', () => {
 client.on('messageReactionAdd', (reaction, user) => {
 	if(user.bot) return;
 	let message = reaction.message, emoji  = reaction.emoji;
-	if(message.reactions.cache.filter(r => r.users.cache.has(user.id)).size >= 2) {
-		reaction.users.remove(user.id);
-	}
-
+	let counts = client.counts;
+	
 	if(client.embeds.has(message.id)) {
-		let tmp = Array.from(client.embeds.values(message.id));
-		if(!tmp[0].includes(user.id)) {
+		if(message.reactions.cache.filter(r => r.users.cache.has(user.id)).size >= 2) {
 			reaction.users.remove(user.id);
-			user.send("You are not in that queue!").then(() => {});
 		}
+		let users = Array.from(client.embeds.values(message.id));
+		if(!users[0].includes(user.id)) reaction.users.remove(user.id);
 
-		else {
-			if(message.reactions.cache.size == 4) {
-				console.log('penis')
+		let mostVotes = '';
+		
+		if(reaction.emoji.name == '🇨' && reaction.count > 1) counts.get('c').count++;
+		if(reaction.emoji.name == '🇷' && reaction.count > 1) counts.get('r').count++;
+		if(reaction.emoji.name == '🇧' && reaction.count > 1) counts.get('b').count++;
+
+		if(counts.get('c').count + counts.get('r').count + counts.get('b').count == max){
+			for(let name of counts.keys()){
+				if(mostVotes !== '' && counts.get(name).count > counts.get(mostVotes).count) mostVotes = name; 
+				else if(mostVotes === '') mostVotes = name;
 			}
+			counts.clear();
 		}
+		db.getMatchID(matchID => {
+			switch(mostVotes){
+				case 'c':
+					voting.captains(message, matchID, users)
+					break;
+				case 'r':
+					voting.random(message, matchID, users)
+					break;
+				case 'b':
+					voting.balanced(client, message, matchID, users)
+					break;
+			}
+		})
 	}
 })
 
-client.on('message', message => {
-	if (!message.guild || message.author.bot) return;  
+client.on("voiceStateUpdate", (oldMember, newMember) => {
+	if(!client.channelIDS.has(newMember.channelID)) return;
+	if(oldMember.voiceChannel !== undefined || newMember.channelID === oldMember.channelID) return;
+	let voiceChannel = client.channels.cache.get(newMember.channelID);
+	let textChannel = client.channelIDS.get(newMember.channelID);
+	if(voiceChannel.members.size != max) return;
+	db.getMatchID(matchID => {
+		const embed = new Discord.MessageEmbed();
+		embed.setColor(rlColor)
+		.addField('6 Players have joined the lobby!', 'Voting will now commence.')
+		.addField('Votes:', '🇨 Captains\n\n🇷 Random\n\n🇧 Balanced');
+		textChannel.send(embed)
+		.then(embed => {
+			client.embeds.set(embed.id, client.usersArray)
+			client.matches.set(`match-${matchID}`, client.usersArray)
+			client.counts.set('c', {count: 0})
+			client.counts.set('r', {count: 0})
+			client.counts.set('b', {count: 0})
+			embed.react("🇨")
+			.then(embed.react("🇷"))
+			.then(embed.react("🇧"))
+		.catch(err => console.log(err));
+		});
+	})
+})
 
-	if(!isCool(message.content.toLocaleLowerCase())) message.delete().then(() => message.channel.send(`${message.author}, please refrain from using inappropriate words.`));
+client.on('message', message => {
+	if (!message.guild || message.author.bot) return;
+	isCool(message);
 
 	// chat logger
 	let log = `${message.member.user.tag} (${message.member.user.id}): ${message}`;
@@ -74,7 +115,7 @@ client.on('message', message => {
 	const command = client.commands.get(commandName)
 		|| client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
 
-	if (!command) return console.log(`ERROR: Command ${commandName} was used but not found.`);
+	if (!command) return console.log(`ERROR: Command ${commandName} does not exist!`);
 	
 	if((command.args == false && args.length != 0) || (command.args == true && args.length < 1)){
 		const embed = new Discord.MessageEmbed();
@@ -94,15 +135,12 @@ client.on('message', message => {
 
 client.login(process.env.BOT_TOKEN);
 
-const originalValue = new Map([[6636, 'Mercenary']]);
 connection.connect(err => {
 	if(err) throw err;
 	console.log("Connected to SQL Database");
 
 	db.createDatabase();
-	//db.getMatchByUser('6636', res => console.log(res));
-	//db.createUser('6636');
-	db.getUserInMatch('6636', res => {
+	db.getMatchID(res => {
 		console.log(res);
 	})
 })
