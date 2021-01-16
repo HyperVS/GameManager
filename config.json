@@ -2,7 +2,10 @@
     "prefix": "!",
     "csColor": "ORANGE",
     "rlColor": "BLUE",
-    "max": "2",
+
+    "unrankedRole": "800095705027969056",
+    
+    "max": "1",
     "footer": "6mans | Twisted's Tweakers",
     "thumbnail": "https://cdn.discordapp.com/attachments/423938531485024256/794597686891511828/a435aafc4601e408d2fa167363d7b280.png"
 }

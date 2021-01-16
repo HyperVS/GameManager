@@ -9,10 +9,10 @@ module.exports = {
 	args: 0,
 	usage: `${prefix}profile`,
 	async execute(client, message, args){
-		let wins = await db.getWins('416278094530478110');
-		let losses = await db.getLosses('416278094530478110');
-		const embed = new MessageEmbed();
-		embed.setTitle(`${message.author.username}'s Profile`)
+		let wins = await db.getWins(message.author.id);
+		let losses = await db.getLosses(message.author.id);
+		const embed = new MessageEmbed()
+		.setTitle(`${message.author.username}'s Profile`)
 		.setThumbnail(message.author.avatarURL())
 		.addField('Games played:', `${wins + losses}`)
 		.addField('Wins:', `${wins}`)

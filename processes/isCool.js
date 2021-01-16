@@ -11,6 +11,6 @@ const isCool = createIsCool({
 
 module.exports = (message) => {
     if (!isCool(message.content.toLocaleLowerCase())) {
-        message.delete().then(() => message.channel.send(`${message.author}, please refrain from using inappropriate words.`));
+        message.delete().then(() => message.reply(`please refrain from using inappropriate words.`));
     }
 };
