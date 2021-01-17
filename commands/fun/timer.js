@@ -1,6 +1,6 @@
 const { MessageEmbed } = require('discord.js');
-const { prefix, footer, rlColor } = require('../config.json');
-const db = require('../db/orm');
+const { prefix, footer, rlColor } = require('../../config.json');
+const db = require('../../db/orm');
 
 module.exports = {
 	name: 'timer',

@@ -1,7 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const { rlColor, prefix } = require('../config.json');
-const db = require('../db/orm');
-const { team1, team2 } = require('../processes/voting');
+const { rlColor, prefix } = require('../../config.json');
 
 module.exports = {
 	name: 'report',

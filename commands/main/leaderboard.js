@@ -1,6 +1,6 @@
 const { MessageEmbed } = require('discord.js');
-const { prefix, rlColor } = require('../config.json');
-const db = require('../db/orm');
+const { prefix, rlColor } = require('../../config.json');
+const db = require('../../db/orm');
 
 module.exports = {
 	name: 'leaderboard',

@@ -1,4 +1,4 @@
-const { prefix, rlColor, footer } = require('../config.json');
+const { prefix, rlColor, footer } = require('../../config.json');
 const { MessageEmbed } = require('discord.js');
 
 module.exports = {

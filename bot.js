@@ -2,6 +2,7 @@ require('dotenv').config();
 const fs = require('fs');
 const Discord = require('discord.js');
 const client = new Discord.Client();
+const path = require('path');
 
 client.embeds = new Discord.Collection();
 client.commands = new Discord.Collection();
@@ -12,11 +13,12 @@ client.muted = new Discord.Collection();
 client.counts = new Discord.Collection();
 client.players = new Discord.Collection();
 
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-commandFiles.forEach(file => {
-	const command = require(`./commands/${file}`);
-	client.commands.set(command.name, command);
-});
+fs.readdirSync('./commands').forEach(folder => {
+	fs.readdirSync(path.join('commands', folder)).forEach(file => {
+		const command = require(path.resolve(path.join('commands', folder, file)));
+		client.commands.set(command.name, command);
+	})
+})
 
 // Event handler
 fs.readdir('./events/', (err, files) => {
