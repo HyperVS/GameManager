@@ -1,7 +1,7 @@
 const { MessageEmbed } = require('discord.js');
 const { stat } = require('fs');
-const { rlColor, footer, prefix } = require('../config.json');
-const db = require('../db/orm');
+const { rlColor, footer, prefix } = require('../../config.json');
+const db = require('../../db/orm');
 
 module.exports = {
 	name: 'profile',

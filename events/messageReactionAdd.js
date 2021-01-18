@@ -2,7 +2,7 @@ const voting = require('../processes/voting');
 const { max, rlColor, footer } = require('../config.json');
 const db = require('../db/orm');
 const { MessageEmbed } = require('discord.js');
-const { generateEmbed } = require('../commands/leaderboard');
+const { generateEmbed } = require('../commands/main/leaderboard');
 
 module.exports = {
     once: false,

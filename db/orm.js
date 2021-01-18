@@ -4,12 +4,12 @@ const sqlConn = require('./connection.js');
 const functions = {
     deleteDatabase: () => {
         sqlConn.query("USE `game-manager`;");
-        sqlConn.query("DROP TABLE `users`;")
-        sqlConn.query("DROP TABLE `matches`;")
+        sqlConn.query("DROP TABLE IF EXISTS `users`;")
+        sqlConn.query("DROP TABLE IF EXISTS `matches`;")
     },
     createDatabase: () => {
         sqlConn.query("USE `game-manager`;");
-        sqlConn.query("CREATE TABLE IF NOT EXISTS `users` (`id` INT PRIMARY KEY AUTO_INCREMENT, `userid` VARCHAR(64) NOT NULL, `wins` INT DEFAULT 0 NOT NULL, `losses` INT DEFAULT 0 NOT NULL, `mmr` INT DEFAULT 1000 NOT NULL, `queue` BOOLEAN DEFAULT FALSE, `match` BOOLEAN DEFAULT FALSE); ", () => {
+        sqlConn.query("CREATE TABLE IF NOT EXISTS `users` (`id` INT PRIMARY KEY AUTO_INCREMENT, `userid` VARCHAR(64) NOT NULL, `wins` INT DEFAULT 0 NOT NULL, `losses` INT DEFAULT 0 NOT NULL, `mmr` INT DEFAULT 1000 NOT NULL); ", () => {
         sqlConn.query("CREATE TABLE IF NOT EXISTS `matches` (`id` INT PRIMARY KEY AUTO_INCREMENT, `users` VARCHAR(256) NOT NULL, `date` DATE DEFAULT CURRENT_TIMESTAMP);");
         })
     },
@@ -31,22 +31,6 @@ const functions = {
             sqlConn.query("INSERT INTO `users` (`userid`) VALUES (?)", [userID], (err, res) => {
                 if(err) reject(err);
                 resolve(res);
-            })
-        })
-    },
-    getUserInMatch: (userID) => {
-        return new Promise((resolve, reject) =>{
-            sqlConn.query("SELECT `queue` FROM `users` WHERE `userid` = ?", [userID], (err, res) => {
-                if(err) reject(err);
-                resolve(!!res[0].queue);
-            })
-        })
-    },
-    updateUserInMatch: (userID, value) => {
-        return new Promise((resolve, reject) =>{
-            sqlConn.query("UPDATE `users` SET `queue` = ? WHERE `userid` = ?", [value, userID], (err, res) => {
-                if(err) reject(err);
-                resolve();
             })
         })
     },

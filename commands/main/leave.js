@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const { rlColor, prefix } = require('../config.json');
+const { rlColor, prefix } = require('../../config.json');
 
 module.exports = {
 	name: 'leave',

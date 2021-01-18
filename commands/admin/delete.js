@@ -1,6 +1,6 @@
 const { MessageEmbed } = require('discord.js');
 const Discord = require('discord.js');
-const { prefix } = require('../config.json');
+const { prefix } = require('../../config.json');
 require('dotenv').config();
 
 module.exports = {

@@ -1,7 +1,7 @@
 const { MessageEmbed } = require('discord.js');
-const { rlColor, max } = require("../config.json");
-const { prefix, thumbnail, footer } = require('../config.json');
-const db = require('../db/orm');
+const { rlColor, max } = require("../../config.json");
+const { prefix, thumbnail, footer } = require('../../config.json');
+const db = require('../../db/orm');
 
 module.exports = {
 	name: 'queue',
