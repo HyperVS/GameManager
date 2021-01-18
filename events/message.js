@@ -7,7 +7,6 @@ module.exports = {
     run(message, client) {
         if (!message.guild || message.author.bot) return;
         isCool(message);
-        console.log(client.players);
         if(!message.content.startsWith(prefix)) return;
         const args = message.content.slice(prefix.length).split(/ +/);
         const commandName = args.shift().toLowerCase();
