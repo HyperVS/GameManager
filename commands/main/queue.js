@@ -17,7 +17,7 @@ module.exports = {
             .setDescription(`<@!${message.author.id}> you are already in the queue!`);
             return message.channel.send(embed);
         }
-        if(client.matches.has(message.author)){
+        if(client.matches.has(message.author.id)){
             embed.setColor(rlColor)
             .setDescription(`<@!${message.author.id}> you are already in a match!`);
             return message.channel.send(embed);

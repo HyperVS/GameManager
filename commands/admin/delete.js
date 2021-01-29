@@ -8,7 +8,7 @@ module.exports = {
     aliases: ['d'],
     args: 1,
     usage: `${prefix}d [category name / all]`,
-    private: true,
+    admin: true,
     async execute(client, message, args) {
         let server = message.guild;
 

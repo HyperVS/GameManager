@@ -22,8 +22,8 @@ module.exports = {
             db.getMatchID().then(e=>console.log(e));
             db.getMmr('416278094530478110').then(mmr => console.log(mmr));
             db.getWins('423937152942997514').then(wins => console.log(wins));
-            db.updateMmr('416278094530478110', 1200);
-            client.players.set('416278094530478110', 1200);
+            // db.updateMmr('416278094530478110', 1200);
+            // client.players.set('416278094530478110', 1200);
         })
     }
 };

@@ -12,6 +12,8 @@ client.channelIDS = new Discord.Collection();
 client.muted = new Discord.Collection();
 client.counts = new Discord.Collection();
 client.players = new Discord.Collection();
+client.votes = new Discord.Collection();
+
 
 fs.readdirSync('./commands').forEach(folder => {
 	fs.readdirSync(path.join('commands', folder)).forEach(file => {
