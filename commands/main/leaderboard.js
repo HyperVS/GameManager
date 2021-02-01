@@ -8,13 +8,12 @@ module.exports = {
 	args: 0,
 	usage: `${prefix}leaderboard`,
 	async execute (client, message, args){
-		let msg = await message.channel.send(this.generateEmbed(client, message, 0));
+		let msg = await message.channel.send(this.generateEmbed(client, message.author.id, 0));
 		await msg.react('◀️');
 		await msg.react('▶️');
 		client.currentIndex = 0;
-		client.messageAuthor = message.author.id
 	},
-	generateEmbed: (client, message, index) => {
+	generateEmbed: (client, userID, index) => {
 		let players = [...client.players.keys()];
         let current = players.slice(index, index+10);
         const embed = new MessageEmbed()
@@ -26,7 +25,7 @@ module.exports = {
             desc+= `${players.indexOf(player)+1}: <@!${player}> - ${client.players.get(player)}\n`
 		})
 		desc+= `----------------------------------------------------\n`;
-		desc+= `${players.indexOf(client.messageAuthor)+1}: <@!${client.messageAuthor}> - ${client.players.get(client.messageAuthor)}\n`
+		desc+= `${players.indexOf(userID)+1}: <@!${userID}> - ${client.players.get(userID)}\n`
         embed.setDescription(desc);
         return embed;
     }

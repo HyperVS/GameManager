@@ -14,13 +14,13 @@ module.exports = {
         if(reaction.emoji.name === '◀️'){
             client.currentIndex == 0 ? client.currentIndex = maxIndex-10 : client.currentIndex -= 10;
             reaction.users.remove(user.id);
-            message.edit(generateEmbed(client, message, client.currentIndex))
+            message.edit(generateEmbed(client, user.id, client.currentIndex))
         }
 
         if(reaction.emoji.name === '▶️'){
             client.currentIndex == maxIndex-10 ? client.currentIndex = 0 : client.currentIndex += 10;
             reaction.users.remove(user.id);
-            message.edit(generateEmbed(client, message, client.currentIndex))
+            message.edit(generateEmbed(client, user.id, client.currentIndex))
         }
 
         
@@ -43,7 +43,7 @@ module.exports = {
             client.embeds.clear();
             switch(mostVotes){
                 case 'c':
-                    voting.captains(message, matchID, users[0], client)
+                    voting.captains(message, matchID, users[0])
                     break;
                 case 'r':
                     voting.random(message, matchID, users[0])
@@ -52,9 +52,6 @@ module.exports = {
                     voting.balanced(message, matchID, users[0])
                     break;
             }
-        }
-        if(client.votes.has(message.id)){
-            voting.handleCaptainTeams(message, reaction, user, users, client, matchID)
         }
     }
 };

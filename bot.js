@@ -13,8 +13,9 @@ client.muted = new Discord.Collection();
 client.counts = new Discord.Collection();
 client.players = new Discord.Collection();
 client.votes = new Discord.Collection();
+client.result = new Discord.Collection();
 
-
+// Commands handler
 fs.readdirSync('./commands').forEach(folder => {
 	fs.readdirSync(path.join('commands', folder)).forEach(file => {
 		const command = require(path.resolve(path.join('commands', folder, file)));

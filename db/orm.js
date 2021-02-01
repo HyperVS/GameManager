@@ -9,7 +9,7 @@ const functions = {
     },
     createDatabase: () => {
         sqlConn.query("USE `game-manager`;");
-        sqlConn.query("CREATE TABLE IF NOT EXISTS `users` (`id` INT PRIMARY KEY AUTO_INCREMENT, `userid` VARCHAR(64) NOT NULL, `wins` INT DEFAULT 0 NOT NULL, `losses` INT DEFAULT 0 NOT NULL, `mmr` INT DEFAULT 1000 NOT NULL); ", () => {
+        sqlConn.query("CREATE TABLE IF NOT EXISTS `users` (`id` INT PRIMARY KEY AUTO_INCREMENT, `userid` VARCHAR(64) NOT NULL UNIQUE, `wins` INT DEFAULT 0 NOT NULL, `losses` INT DEFAULT 0 NOT NULL, `mmr` INT DEFAULT 1000 NOT NULL); ", () => {
         sqlConn.query("CREATE TABLE IF NOT EXISTS `matches` (`id` INT PRIMARY KEY AUTO_INCREMENT, `users` VARCHAR(256) NOT NULL, `date` DATE DEFAULT CURRENT_TIMESTAMP);");
         })
     },
@@ -28,7 +28,7 @@ const functions = {
     },
     createUser: (userID) => {
         return new Promise((resolve, reject) =>{
-            sqlConn.query("INSERT INTO `users` (`userid`) VALUES (?)", [userID], (err, res) => {
+            sqlConn.query("INSERT IGNORE INTO `users` (`userid`) VALUES (?)", [userID], (err, res) => {
                 if(err) reject(err);
                 resolve(res);
             })

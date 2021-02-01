@@ -16,7 +16,7 @@ module.exports = {
                 await db.createUser(userid)
                 let mmr = await db.getMmr(userid);
                 client.players.set(userid, mmr);
-                client.players.sort((a,b) => b[0] - a[0])
+                client.players.sort((a,b) => b - a)
             })
 
             db.getMatchID().then(e=>console.log(e));
