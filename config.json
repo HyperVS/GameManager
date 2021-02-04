@@ -2,10 +2,15 @@
     "prefix": "!",
     "csColor": "ORANGE",
     "rlColor": "BLUE",
-
     "unrankedRole": "800095705027969056",
-    
     "max": "6",
     "footer": "6mans | Twisted's Tweakers",
-    "thumbnail": "https://cdn.discordapp.com/attachments/423938531485024256/794597686891511828/a435aafc4601e408d2fa167363d7b280.png"
+    "thumbnail": "https://cdn.discordapp.com/attachments/423938531485024256/794597686891511828/a435aafc4601e408d2fa167363d7b280.png",
+    "supportedGames": [
+        {
+            "RL": "806952760242864190",
+            "CS": "806952765398056991",
+            "VAL": "806952770485747722"
+        }
+    ]
 }

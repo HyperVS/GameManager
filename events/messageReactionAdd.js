@@ -1,29 +1,12 @@
 const voting = require('../processes/voting');
 const { max, rlColor, footer } = require('../config.json');
 const db = require('../db/orm');
-const { MessageEmbed } = require('discord.js');
-const { generateEmbed } = require('../commands/main/leaderboard');
 
 module.exports = {
     once: false,
     async run(reaction, user, client) {
         if(user.bot) return;
-        let maxIndex = Math.ceil(client.players.size/10)*10;
         let message = reaction.message;
-
-        if(reaction.emoji.name === '◀️'){
-            client.currentIndex == 0 ? client.currentIndex = maxIndex-10 : client.currentIndex -= 10;
-            reaction.users.remove(user.id);
-            message.edit(await generateEmbed(user.id, client.currentIndex))
-        }
-
-        if(reaction.emoji.name === '▶️'){
-            client.currentIndex == maxIndex-10 ? client.currentIndex = 0 : client.currentIndex += 10;
-            reaction.users.remove(user.id);
-            message.edit(await generateEmbed(user.id, client.currentIndex))
-        }
-
-        
         let counts = client.counts;
         let matchID = await db.getMatchID();
         let users = [...client.embeds.values(message.id)];

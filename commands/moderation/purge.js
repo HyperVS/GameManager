@@ -1,6 +1,8 @@
 const { prefix, rlColor } = require('../../config.json');
 const { MessageEmbed } = require('discord.js');
 
+
+
 module.exports = {
     name: 'purge',
     aliases: [],
@@ -8,9 +10,20 @@ module.exports = {
     usage: `${prefix}purge [amount] / @user / @user [amount]`,
     admin: true,
     async execute(client, message, args){
+        const limit = 50;
+        const checkLimit = (amount) => {
+            if (amount > limit) {
+                return false;
+            }
+        }
+
         const embed = new MessageEmbed().setColor(rlColor);
         if(args.length == 1){
             let amount = parseInt(args[0]);
+            if (!checkLimit(amount)) {
+                embed.setDescription("Maximum purge allowed is 50 messages")
+                return message.channel.send(embed);
+            };
             if(message.mentions.users.size === 1){
                 let msgs = []
                 let messages = await message.channel.messages.fetch({limit: 100});
@@ -29,6 +42,11 @@ module.exports = {
         }
         else if(args.length == 2){
             let amount = parseInt(args[1]);
+            if (!checkLimit(amount)) {
+                embed.setDescription("Maximum purge allowed is 50 messages")
+                return message.channel.send(embed);
+            };
+
             if(message.mentions.users.size === 1 && args[1] == amount){
                 let msgs = []
                 let count = 0;

@@ -65,7 +65,6 @@ const functions = {
         return new Promise((resolve, reject) =>{
             sqlConn.query("SELECT `mmr` FROM `" + table + "` NATURAL JOIN `users` WHERE `userid` = ?", [userID], (err, res) => {
                 if(err) reject(err);
-                console.log(res);
                 resolve(res[0].mmr);
             })
         })
