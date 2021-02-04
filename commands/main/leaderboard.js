@@ -8,24 +8,27 @@ module.exports = {
 	args: 0,
 	usage: `${prefix}leaderboard`,
 	async execute (client, message, args){
-		let msg = await message.channel.send(this.generateEmbed(client, message.author.id, 0));
+		let msg = await message.channel.send(await this.generateEmbed(message.author.id, 0));
 		await msg.react('◀️');
 		await msg.react('▶️');
 		client.currentIndex = 0;
 	},
-	generateEmbed: (client, userID, index) => {
-		let players = [...client.players.keys()];
-        let current = players.slice(index, index+10);
+	generateEmbed: async (userID, index) => {
+		let players = await db.getAllUsers('RLusers');
+		let current = players.slice(index, index+10);
+		let counter = 0;
         const embed = new MessageEmbed()
         .setColor(rlColor)
         .setFooter(`${Math.floor(index/10)+1}/${Math.ceil(players.length/10)}`)
 		.setTitle("Leaderboard");
         let desc = '';
-        current.forEach((player) => {
-            desc+= `${players.indexOf(player)+1}: <@!${player}> - ${client.players.get(player)}\n`
+        current.forEach(async (player, i, array) => {
+			let mmr = await db.getMmr(player, 'RLusers')
+			desc+= `${players.indexOf(player)+1}: <@!${player}> - ${mmr}\n`
+			if (++counter == array.length) desc+= `----------------------------------------------------\n`;
 		})
-		desc+= `----------------------------------------------------\n`;
-		desc+= `${players.indexOf(userID)+1}: <@!${userID}> - ${client.players.get(userID)}\n`
+		let userMmr = await db.getMmr(userID, 'RLusers');
+		desc+= `${players.indexOf(userID)+1}: <@!${userID}> - ${userMmr}\n`
         embed.setDescription(desc);
         return embed;
     }

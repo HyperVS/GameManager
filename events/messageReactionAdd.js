@@ -14,13 +14,13 @@ module.exports = {
         if(reaction.emoji.name === '◀️'){
             client.currentIndex == 0 ? client.currentIndex = maxIndex-10 : client.currentIndex -= 10;
             reaction.users.remove(user.id);
-            message.edit(generateEmbed(client, user.id, client.currentIndex))
+            message.edit(await generateEmbed(user.id, client.currentIndex))
         }
 
         if(reaction.emoji.name === '▶️'){
             client.currentIndex == maxIndex-10 ? client.currentIndex = 0 : client.currentIndex += 10;
             reaction.users.remove(user.id);
-            message.edit(generateEmbed(client, user.id, client.currentIndex))
+            message.edit(await generateEmbed(user.id, client.currentIndex))
         }
 
         

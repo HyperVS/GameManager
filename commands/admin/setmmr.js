@@ -16,15 +16,14 @@ module.exports = {
             return message.channel.send(embed);
         }
         let userID = message.mentions.users.first().id;
-        
+    
         if(!db.userExists(userID)){
             embed.setDescription('This user does not exist!')
             return message.channel.send(embed);
         }
         try {
-            let oldMmr = await db.getMmr(userID);
-            await db.updateMmr(userID, newMmr);
-            client.players.set(userID, newMmr)
+            let oldMmr = await db.getMmr(userID, 'RLusers');
+            await db.updateMmr(userID, `RLusers`, newMmr);
             embed.setDescription(`Set mmr from ${oldMmr} to ${newMmr} for <@${userID}>!`)
             return message.channel.send(embed);
         } catch(error){

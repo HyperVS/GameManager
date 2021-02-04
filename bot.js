@@ -11,7 +11,6 @@ client.matches = new Discord.Collection();
 client.channelIDS = new Discord.Collection();
 client.muted = new Discord.Collection();
 client.counts = new Discord.Collection();
-client.players = new Discord.Collection();
 client.votes = new Discord.Collection();
 client.result = new Discord.Collection();
 
