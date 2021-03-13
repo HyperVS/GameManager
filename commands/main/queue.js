@@ -1,10 +1,11 @@
 const { MessageEmbed } = require('discord.js');
-const { rlColor, max } = require("../../config.json");
 const db = require('../../db/orm');
 const { 
     prefix, 
     thumbnail, 
-    footer, 
+    footer,
+    max,
+    rlColor,
     supportedGames
 } = require('../../config.json');
 
@@ -12,7 +13,7 @@ module.exports = {
 	name: 'queue',
 	aliases: ['q'],
     args: 0,
-    usage: `${prefix}queue [game]`,
+    usage: `${prefix}queue`,
 	async execute(client, message, args){
         const embed = new MessageEmbed();
         if (!queueChannels.includes(message.channel.id)) {

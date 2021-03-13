@@ -1,4 +1,5 @@
-const { MessageEmbed } = require('discord.js');
+const { findMatch, getMatch } = require('../../processes/global');
+const { MessageEmbed, Collection } = require('discord.js');
 const { rlColor, prefix } = require('../../config.json');
 
 module.exports = {
@@ -13,25 +14,30 @@ module.exports = {
 			return message.channel.send(embed);
 		};
 		
+		let results = client.results;
 		let matchID = client.matches.get(message.author.id);
-		let result = client.result;
+
+		if(!findMatch(results, matchID)) client.results.push({matchID: matchID, collection: new Collection()});
+		let match = getMatch(results, matchID);
 
 		switch(args[0].toLowerCase()){
 			case 'w':
-				result.set(message.author.id, 1)
-				message.react('✅');
+				match.collection.set(message.author.id, 'win')
+				embed.setDescription(`<@${message.author.id}> voted WIN.`)
+				message.channel.send(embed)
 				break;
 			case 'l':
-				result.set(message.author.id, 0)
-				message.react('✅');
+				match.collection.set(message.author.id, 'loss')
+				embed.setDescription(`<@${message.author.id}> voted LOSS.`)
+				message.channel.send(embed)
 				break;
 			default:
 				embed.setDescription("Incorrect usage of command. Use !help report for help.")
 				return message.channel.send(embed);
 		}
 
-		if (result.size != 6) return;
-
-		
+		if(match.collection.size == 6){
+			
+		}
 	}
 }

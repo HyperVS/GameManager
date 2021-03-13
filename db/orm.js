@@ -192,7 +192,7 @@ const functions = {
      */
     getWins: (userid, table) => {
         return new Promise((resolve, reject) =>{
-            sqlConn.query("SELECT `wins` FROM `" + table + "` WHERE `userid` = ?", [userid], (err, res) => {
+            sqlConn.query("SELECT `wins` FROM `" + table + "` NATURAL JOIN `users` WHERE `userid` = ?", [userid], (err, res) => {
                 if(err) reject(err);
                 resolve(res[0].wins);
             })
@@ -205,7 +205,7 @@ const functions = {
      */
     getLosses: (userid, table) => {
         return new Promise((resolve, reject) => {
-            sqlConn.query("SELECT `losses` FROM `" + table + "` WHERE `userid` = ?", [userid], (err, res) => {
+            sqlConn.query("SELECT `losses` FROM `" + table + "` NATURAL JOIN `users` WHERE `userid` = ?", [userid], (err, res) => {
                 if(err) reject(err);
                 resolve(res[0].losses);
             })

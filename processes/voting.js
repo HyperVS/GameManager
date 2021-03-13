@@ -3,6 +3,7 @@ const { rlColor, footer } = require('../config.json');
 const global = require('./global');
 const db = require('../db/orm');
 const { calculateElo } = require('./mmr');
+const { getMatch } = require('./global');
 
 const captains = async (message, matchID, users) => {
     let captain1 = users[Math.floor(Math.random()*users.length)];
@@ -314,7 +315,6 @@ const handleMmr = async (message, team1, team2, matchID) => {
         let newMmr = calculateElo(mmr, highestT2, client.result.get(userid), k);
         await db.updateMmr(userid, newMmr);
         newMMr > mmr ? await db.addWin(userid) : await db.addLoss(userid);
-        client.players.set(userid, newMmr);
         //TODO: send embed to channel match-results
         // channel.send()
     })
@@ -326,7 +326,6 @@ const handleMmr = async (message, team1, team2, matchID) => {
         k = k<20 ? 20 : k;
         let newMmr = calculateElo(mmr, highestT1, client.result.get(userid), k);
         await db.updateMmr(userid, newMmr);
-        client.players.set(userid, newMmr);
         channel.send()
         
     })
