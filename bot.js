@@ -12,7 +12,7 @@ client.channelIDS = new Discord.Collection();
 client.muted = new Discord.Collection();
 client.counts = new Discord.Collection();
 client.votes = new Discord.Collection();
-client.results = [];
+client.results = new Discord.Collection();
 
 client.queues = new Discord.Collection();
 supportedGames.forEach((game) => {
