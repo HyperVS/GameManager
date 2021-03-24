@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const { prefix, rlColor } = require('../../config.json');
+const { prefix, rlColor, footer } = require('../../config.json');
 const db = require('../../db/orm');
 
 module.exports = {
@@ -8,28 +8,24 @@ module.exports = {
 	args: 0,
 	usage: `${prefix}leaderboard`,
 	async execute (client, message, args){
-		let msg = await message.channel.send(this.generateEmbed(client, message, 0));
-		await msg.react('◀️');
-		await msg.react('▶️');
-		client.currentIndex = 0;
-		client.messageAuthor = message.author.id
-	},
-	generateEmbed: (client, message, index) => {
-		let players = [...client.players.keys()];
-        let current = players.slice(index, index+10);
+		let players = await db.getAllUsers('RLusers');
+		let current = players.slice(0, 10);
+		let counter = 0;
         const embed = new MessageEmbed()
         .setColor(rlColor)
-        .setFooter(`${Math.floor(index/10)+1}/${Math.ceil(players.length/10)}`)
+        .setFooter(`${footer}`)
 		.setTitle("Leaderboard");
         let desc = '';
-        current.forEach((player) => {
-            desc+= `${players.indexOf(player)+1}: <@!${player}> - ${client.players.get(player)}\n`
+        current.forEach(async (player, i, array) => {
+			let mmr = await db.getMmr(player, 'RLusers')
+			desc+= `${players.indexOf(player)+1}: <@!${player}> - ${mmr}\n`
+			if (++counter == array.length) desc+= `----------------------------------------------------\n`;
 		})
-		desc+= `----------------------------------------------------\n`;
-		desc+= `${players.indexOf(client.messageAuthor)+1}: <@!${client.messageAuthor}> - ${client.players.get(client.messageAuthor)}\n`
+		let userMmr = await db.getMmr(message.author.id, 'RLusers');
+		desc+= `${players.indexOf(message.author.id)+1}: <@!${message.author.id}> - ${userMmr}\n`
         embed.setDescription(desc);
-        return embed;
-    }
+		message.channel.send(embed);
+	}
 }
 
 

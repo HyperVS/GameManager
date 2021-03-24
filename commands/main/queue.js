@@ -1,7 +1,13 @@
 const { MessageEmbed } = require('discord.js');
-const { rlColor, max } = require("../../config.json");
-const { prefix, thumbnail, footer } = require('../../config.json');
 const db = require('../../db/orm');
+const { 
+    prefix, 
+    thumbnail, 
+    footer,
+    max,
+    rlColor,
+    supportedGames
+} = require('../../config.json');
 
 module.exports = {
 	name: 'queue',
@@ -9,15 +15,27 @@ module.exports = {
     args: 0,
     usage: `${prefix}queue`,
 	async execute(client, message, args){
-        const server = message.guild;
-        const queue = client.queue;
         const embed = new MessageEmbed();
+        if (!queueChannels.includes(message.channel.id)) {
+            message.delete();
+            return message.author.send("Wrong channel retard");
+        }
+
+        const server = message.guild;
+
+        const queue = client.queues.get(`${args[0].toUpperCase()}queue`);
+        if (queue === undefined) {
+            embed.setTitle("Unknown game :(")
+            embed.addField("List of supported games: ", supportedGames);
+            return message.channel.send(embed);
+        }
+
         if(queue.has(message.author.id)){
             embed.setColor(rlColor)
             .setDescription(`<@!${message.author.id}> you are already in the queue!`);
             return message.channel.send(embed);
         }
-        if(client.matches.has(message.author)){
+        if(client.matches.has(message.author.id)){
             embed.setColor(rlColor)
             .setDescription(`<@!${message.author.id}> you are already in a match!`);
             return message.channel.send(embed);

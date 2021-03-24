@@ -1,18 +1,27 @@
-const { resolve } = require('path');
 const sqlConn = require('./connection.js');
-
+ 
 const functions = {
+    /**
+     * Deletes all tables
+    */
     deleteDatabase: () => {
         sqlConn.query("USE `game-manager`;");
+        sqlConn.query("DROP TABLE IF EXISTS `RLusers`");
+        sqlConn.query("DROP TABLE IF EXISTS `CSusers`");
         sqlConn.query("DROP TABLE IF EXISTS `users`;")
         sqlConn.query("DROP TABLE IF EXISTS `matches`;")
     },
     createDatabase: () => {
         sqlConn.query("USE `game-manager`;");
-        sqlConn.query("CREATE TABLE IF NOT EXISTS `users` (`id` INT PRIMARY KEY AUTO_INCREMENT, `userid` VARCHAR(64) NOT NULL, `wins` INT DEFAULT 0 NOT NULL, `losses` INT DEFAULT 0 NOT NULL, `mmr` INT DEFAULT 1000 NOT NULL); ", () => {
-        sqlConn.query("CREATE TABLE IF NOT EXISTS `matches` (`id` INT PRIMARY KEY AUTO_INCREMENT, `users` VARCHAR(256) NOT NULL, `date` DATE DEFAULT CURRENT_TIMESTAMP);");
-        })
+        sqlConn.query("CREATE TABLE IF NOT EXISTS `users` (`id` INT PRIMARY KEY AUTO_INCREMENT, `userid` VARCHAR(64) NOT NULL); ");
+        sqlConn.query("CREATE TABLE IF NOT EXISTS `RLusers` (`id` INT PRIMARY KEY, `wins` INT DEFAULT 0 NOT NULL, `losses` INT DEFAULT 0 NOT NULL, `mmr` INT DEFAULT 1000 NOT NULL, FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE)")
+        sqlConn.query("CREATE TABLE IF NOT EXISTS `CSusers` (`id` INT PRIMARY KEY, `wins` INT DEFAULT 0 NOT NULL, `losses` INT DEFAULT 0 NOT NULL, `mmr` INT DEFAULT 1000 NOT NULL, FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE)")
+        sqlConn.query("CREATE TABLE IF NOT EXISTS `matches` (`id` INT PRIMARY KEY AUTO_INCREMENT, `users` VARCHAR(256) NOT NULL, `date` DATE DEFAULT CURRENT_TIMESTAMP);")
     },
+    /**
+     * Checks if a user exists in the table by querying it's user ID
+     * @param {*} userID 
+    */
     userExists: (userID) => {
         return new Promise((resolve, reject) =>{
             sqlConn.query("SELECT * FROM `users` WHERE `userid` = ?", [userID], (err, res) => {
@@ -26,49 +35,85 @@ const functions = {
             })
         })
     },
+    /**
+     * Creates a user in all game tables
+     * @param {String} userID 
+    */
     createUser: (userID) => {
         return new Promise((resolve, reject) =>{
-            sqlConn.query("INSERT INTO `users` (`userid`) VALUES (?)", [userID], (err, res) => {
+            sqlConn.query("INSERT INTO `users` (`userid`) VALUES (?)", [userID], (err) => {
                 if(err) reject(err);
-                resolve(res);
+                sqlConn.query("SELECT id FROM `users` WHERE `userID` = ?", [userID], (err, res) => {
+                    if(err) reject(err);
+                    sqlConn.query("INSERT INTO `RLusers` (`id`) VALUES (?)", [res[0].id], (err, res) => {
+                        if(err) reject(err);
+                    })
+                    sqlConn.query("INSERT INTO `CSusers` (`id`) VALUES (?)", [res[0].id], (err, res) => {
+                        if(err) reject(err);
+                    })
+                    resolve();
+                })
             })
         })
     },
-    getMmr: (userID) => {
+    /**
+     * Queries a specific table for a user's mmr
+     * @param {String} userID 
+     * @param {String} table 
+    */
+    getMmr: (userID, table) => {
         return new Promise((resolve, reject) =>{
-            sqlConn.query("SELECT `mmr` FROM `users` WHERE `userid` = ?", [userID], (err, res) => {
+            sqlConn.query("SELECT `mmr` FROM `" + table + "` NATURAL JOIN `users` WHERE `userid` = ?", [userID], (err, res) => {
                 if(err) reject(err);
                 resolve(res[0].mmr);
             })
         })
     },
-    addWin: (userID) => {
+    /**
+     * Adds a win to the player record
+     * @param {String} userID
+     * @param {String} table  
+    */
+    addWin: (userID, table) => {
         return new Promise((resolve, reject) =>{
-            sqlConn.query("UPDATE `users` SET `wins` = `wins`+1 WHERE `userid` = ?", [userID], (err, res) => {
+            sqlConn.query("UPDATE `" + table + "` SET `wins` = `wins`+1 WHERE `id` = ?", [userID], (err, res) => {
                 if(err) reject(err);
                 resolve(res[0].wins);
             })
         })
     },
-    addLoss: (userID) => {
+    /**
+     * Adds a loss to the player record
+     * @param {String} userID
+     * @param {String} table 
+    */
+    addLoss: (userID, table) => {
         return new Promise((resolve, reject) => {
-            sqlConn.query("UPDATE `users` SET `losses` = `losses`+1 WHERE `userid` = ?", [userID], (err, res) => {
+            sqlConn.query("UPDATE `" + table + "` SET `losses` = `losses`+1 WHERE `id` = ?", [userID], (err, res) => {
                 if(err) reject(err);
                 resolve(res[0].losses);
             })
         })
     },
-    updateMmr: (userID, value) => {
+    /**
+     * Updates mmr value for a user
+     * @param {String} userID 
+     * @param {String} table 
+     * @param {Number} value 
+    */
+    updateMmr: (userID, table, value) => {
         return new Promise((resolve, reject) =>{
-            sqlConn.query("UPDATE `users` SET `mmr` = ? WHERE `userid` = ?", [value, userID], (err, res) => {
+            sqlConn.query("SELECT id FROM `users` WHERE `userID` = ?", [userID], (err, res) => {
                 if(err) reject(err);
-                resolve();
+                sqlConn.query("UPDATE `" + table + "` SET `mmr` = ? WHERE `id` = ?", [value, res[0].id], (err, res) => {
+                    if(err) reject(err);
+                    resolve();
+                })
             })
         })
     },
     /**
      * @param {Map} users
-     * @param {Function} matchID
      */
     createMatch: (users) => {
         return new Promise((resolve, reject) =>{
@@ -78,6 +123,10 @@ const functions = {
             })
         })
     },
+    /**
+     * Gets a match from ID
+     * @param {Number} matchID 
+     */
     getMatch: (matchID) => {
         return new Promise((resolve, reject) =>{
             sqlConn.query("SELECT * FROM `matches` WHERE `id` = ?", [matchID], (err, res) => {
@@ -93,6 +142,10 @@ const functions = {
             })
         })
     },
+        /**
+     * Deletes a match from record
+     * @param {Number} matchID 
+     */
     deleteMatch: (matchID) => {
         return new Promise((resolve, reject) =>{
             sqlConn.query("DELETE FROM `matches` WHERE `id` = ?", [matchID], (err, _) => {
@@ -101,6 +154,11 @@ const functions = {
             })
         })
     },
+    
+    /**
+     * Gets the match a user is in
+     * @param {String} userID 
+     */
     getMatchByUser: (userid) => {
         return new Promise((resolve, reject) =>{
             sqlConn.query("SELECT * FROM `matches` WHERE ? IN (`users`)", [userid], (err, res) => {
@@ -115,6 +173,10 @@ const functions = {
             })
         })
     },
+        /**
+     * Gets all match IDs
+     * @param {Function} cb 
+     */
     getMatchID: () => {
         return new Promise((resolve, reject) =>{
             sqlConn.query("SELECT * FROM `matches`", (err, res) => {
@@ -123,22 +185,46 @@ const functions = {
             })
         })
     },
-    getWins: (userid) => {
+    /**
+     * Get number of wins of a player
+     * @param {String} userid 
+     * @param {String} table
+     */
+    getWins: (userid, table) => {
         return new Promise((resolve, reject) =>{
-            sqlConn.query("SELECT `wins` FROM `users` WHERE `userid` = ?", [userid], (err, res) => {
+            sqlConn.query("SELECT `wins` FROM `" + table + "` NATURAL JOIN `users` WHERE `userid` = ?", [userid], (err, res) => {
                 if(err) reject(err);
                 resolve(res[0].wins);
             })
         })
     },
-    getLosses: (userid) => {
+    /**
+     * Get number of losses of a plyer
+     * @param {String} userid 
+     * @param {String} table
+     */
+    getLosses: (userid, table) => {
         return new Promise((resolve, reject) => {
-            sqlConn.query("SELECT `losses` FROM `users` WHERE `userid` = ?", [userid], (err, res) => {
+            sqlConn.query("SELECT `losses` FROM `" + table + "` NATURAL JOIN `users` WHERE `userid` = ?", [userid], (err, res) => {
                 if(err) reject(err);
                 resolve(res[0].losses);
             })
         })
+    },
+    /**
+     * Get an array of all userids in a table ordered by descending mmr
+     * @param {String} table
+     */
+    getAllUsers: (table) => {
+        return new Promise((resolve, reject) =>{
+            sqlConn.query("SELECT * FROM `" + table + "` NATURAL JOIN `users` ORDER BY `mmr` DESC", (err, res) => {
+                if(err) reject(err);
+                let users = [];
+                res.forEach(user => users.push(user.userid));
+                resolve(users)
+            })
+        })
     }
 }
-
+ 
 module.exports = functions;

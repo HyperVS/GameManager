@@ -24,7 +24,7 @@ module.exports = {
             return message.channel.send(embed);
         }
         let msg = '';
-        const commands = [...client.commands.keys()].filter(command => !client.commands.get(command).private);
+        const commands = [...client.commands.keys()].filter(command => !client.commands.get(command).admin);
         commands.forEach(command => {
             msg+= `${command}\n`
         })

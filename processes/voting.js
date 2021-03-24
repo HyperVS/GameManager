@@ -3,36 +3,196 @@ const { rlColor, footer } = require('../config.json');
 const global = require('./global');
 const db = require('../db/orm');
 const { calculateElo } = require('./mmr');
+const { getMatch } = require('./global');
 
-const captains = async (message, matchID, users, client) => {
+const captains = async (message, matchID, users) => {
     let captain1 = users[Math.floor(Math.random()*users.length)];
     let captain2 = users[Math.floor(Math.random()*users.length)];
     while(captain1 === captain2) captain2 = users[Math.floor(Math.random()*users.length)]; // no dupes
-    let captains = users.splice(users.indexOf(captain1), 1);
-    captains.push(users.splice(users.indexOf(captain2), 1)[0]);
+    
+    let team1cur = '';
+    let team2cur = '';
 
-    let embed = new MessageEmbed();
-    embed.setTitle(`Match #${matchID} - Team Formation`)
-        .setDescription(`:one: <@!${users[0]}>\n\n:two: <@!${users[1]}>\n\n:three: <@!${users[2]}>\n\n:four: <@!${users[3]}>`)
-        .addField('Team 1', `Captain #1: <@!${captain1}>\nPlayers:`)
-        .addField('Team 2', `Captain #2: <@!${captain2}>\nPlayers:`)
-        .setFooter(footer)
-        .setColor(rlColor);
-    let msg = await message.channel.send(embed);
-    await msg.react('1️⃣')
-    await msg.react('2️⃣')
-    await msg.react('3️⃣')
-    await msg.react('4️⃣')
-    client.votes.set(msg.id, captains)
+    let main = new MessageEmbed().setTitle(`Match #${matchID} - Team Formation`)
+    .setDescription(`
+        ${(team1.includes(players[0]) || team2.includes(players[0]) ? `:x: ~~<@!${players[0]}>~~` : `:one: <@!${players[0]}>`)}\n\n
+        ${(team1.includes(players[1]) || team2.includes(players[1]) ? `:x: ~~<@!${players[1]}>~~` : `:two: <@!${players[1]}>`)}\n\n
+        ${(team1.includes(players[2]) || team2.includes(players[2]) ? `:x: ~~<@!${players[2]}>~~` : `:three: <@!${players[2]}>`)}\n\n
+        ${(team1.includes(players[3]) || team2.includes(players[3]) ? `:x: ~~<@!${players[3]}>~~` : `:four: <@!${players[3]}>`)}`)
+    .addField('Team 1', `Captain #1: <@!${captain1}>\nPlayers: ${team1cur}`)
+    .addField('Team 2', `Captain #2: <@!${captain2}>\nPlayers: ${team2cur}`)
+    .setFooter(footer)
+    .setColor(rlColor);
+
+    let msg = await message.channel.send(main);
+    try {
+        await msg.react('1️⃣')
+        await msg.react('2️⃣')
+        await msg.react('3️⃣')
+        await msg.react('4️⃣')
+    } catch(error){
+        console.log(error)
+    }
+
     const em = new MessageEmbed().setDescription(`<@!${captain1}>, please pick 1 player.`).setColor(rlColor);
     message.channel.send(em);
+
+    const filter1 = (reaction, user) => {
+        return ['1️⃣', '2️⃣', '3️⃣', '4️⃣'].includes(reaction.emoji.name) && user.id === captain1;
+    }
+
+    const filter2 = (reaction, user) => {
+        return ['1️⃣', '2️⃣', '3️⃣', '4️⃣'].includes(reaction.emoji.name) && user.id === captain2;
+    }
+
+    let team1 = [];
+    let team2 = [];
+    let voted = [];
+
+    const team1collector = msg.createReactionCollector(filter1, {max: 1});
+    const team2collector = msg.createReactionCollector(filter2);
+    
+    team1collector.on('collect', collected => {
+        let reaction = collected.first();
+        switch(reaction.emoji.name){
+            case '1️⃣':
+                team1.push(players[0])
+                team1.forEach(player => {
+                    if (team1cur != '') team1cur += ',';
+                    team1cur += `<@${player}>`;
+                })
+                msg.edit(main);
+                voted.push(1);
+                break;
+            case '2️⃣':
+                team1.push(players[1])
+                team1.forEach(player => {
+                    if (team1cur != '') team1cur += ',';
+                    team1cur += `<@${player}>`;
+                })
+                msg.edit(main);
+                voted.push(2);
+                break;
+            case '3️⃣':
+                team1.push(players[2])
+                team1.forEach(player => {
+                    if (team1cur != '') team1cur += ',';
+                    team1cur += `<@${player}>`;
+                })
+                msg.edit(main);
+                voted.push(3);
+                break;
+            case '4️⃣':
+                team1.push(players[3])
+                team1.forEach(player => {
+                    if (team1cur != '') team1cur += ',';
+                    team1cur += `<@${player}>`;
+                })
+                msg.edit(main);
+                voted.push(4);
+                break;
+        }
+    })
+
+    team2collector.on('collect', collected => {
+        let reaction = collected.first();
+        switch(reaction.emoji.name){
+            case '1️⃣':
+                if (!team1.includes(players[0])){
+                    team2.push(players[0])
+                    team2.forEach(player => {
+                        if (team2cur != '') team2cur += ',';
+                        team2cur += `<@${player}>`;
+                    })
+                    msg.edit(main);
+                    voted.push(1);
+                }
+                break;
+            case '2️⃣':
+                if (!team1.includes(players[1])){
+                    team2.push(players[1])
+                    team2.forEach(player => {
+                        if (team2cur != '') team2cur += ',';
+                        team2cur += `<@${player}>`;
+                    })
+                    msg.edit(main);
+                    voted.push(2);
+                }
+                break;
+            case '3️⃣':
+                if (!team1.includes(players[2])){
+                    team2.push(players[2])
+                    team2.forEach(player => {
+                        if (team2cur != '') team2cur += ',';
+                        team2cur += `<@${player}>`;
+                    })
+                    msg.edit(main);
+                    voted.push(3);
+                }
+                break;
+            case '4️⃣':
+                if (!team1.includes(players[3])){
+                    team2.push(players[3])
+                    team2.forEach(player => {
+                        if (team2cur != '') team2cur += ',';
+                        team2cur += `<@${player}>`;
+                    })
+                    msg.edit(main);
+                    voted.push(4);
+                }
+                break;
+        }
+    })
+
+    team1collector.on('end', () => {
+        em.setDescription(`<@!${captain2}>, please pick 2 players.`)
+        message.channel.send(em);
+    })
+
+    team2collector.on('end', () => {
+        if(!voted.includes(1)){
+            team1.push(players[0])
+            team1.forEach(player => {
+                if (team1cur != '') team1cur += ',';
+                team1cur += `<@${player}>`;
+            })
+        }
+
+        else if(!voted.includes(2)){
+            team1.push(players[1])
+            team1.forEach(player => {
+                if (team1cur != '') team1cur += ',';
+                team1cur += `<@${player}>`;
+            })
+        }
+
+        else if(!voted.includes(3)){
+            team1.push(players[2])
+            team1.forEach(player => {
+                if (team1cur != '') team1cur += ',';
+                team1cur += `<@${player}>`;
+            })
+        }
+
+        else if(!voted.includes(4)){
+            team1.push(players[3])
+            team1.forEach(player => {
+                if (team1cur != '') team1cur += ',';
+                team1cur += `<@${player}>`;
+            })
+        }
+
+        msg.edit(main);
+        handleTeams(message, team1, team2, matchID);
+    })
 }
 
 const random = async (message, matchID, users) => {
     // generate random teams
     let players = global.shuffleArray(users);
-    let team1 = players.splice(0, Math.ceil(players.length/2));
-    let team2 = players.splice(-Math.ceil(players.length/2));
+    let half = players.length/2;
+    let team1 = players.splice(0, half);
+    let team2 = players.splice(-half);
     let t1Players = '';
     let t2Players = '';
     for(let player of team1){
@@ -52,42 +212,42 @@ const random = async (message, matchID, users) => {
         .setFooter(footer)
         .setColor(rlColor);
     message.channel.send(embed);
-    await handleTeams(message, team1, team2, matchID);
-    await handleMmr(message, team1, team2)
+    handleTeams(message, team1, team2, matchID);
+    //await handleMmr(message, team1, team2)
 }
 
 const balanced = async (message, matchID, users) => {
-    //TODO: balanced teams
-    let players = [];
-    users.forEach(async userid => {
-        players.push({
-            mmr: await db.getMmr(userid),
-            userid: userid
+        //TODO: balanced teams
+        let players = [];
+        users.forEach(async userid => {
+            players.push({
+                mmr: await db.getMmr(userid),
+                userid: userid
+            })
         })
-    })
-    players.sort((a,b) => b.mmr - a.mmr); //descending order
-    let team1 = [players[0].userid, players[3].userid, players[4].userid];
-    let team2 = [players[1].userid, players[2].userid, players[5].userid];
-    let t1Players = '';
-    let t2Players = '';
-    for(let player of team1){
-        if(t1Players != '') t1Players += ',';
-        t1Players += `<@!${player}>`;
-    };
-    for(let player of team2){
-        if(t2Players != '') t2Players += ',';
-        t2Players += `<@!${player}>`;
-    };
-    // send message
-    let embed = new MessageEmbed();
-    embed.setTitle(`Match #${matchID} - Team Formation`)
-        .addField('Team 1', `Players: ${t1Players}`)
-        .addField('Team 2', `Players: ${t2Players}`)
-        .setFooter(footer)
-        .setColor(rlColor);
-    message.channel.send(embed);
-    await handleTeams(message, team1, team2, matchID);
-    await handleMmr(message, team1, team2, matchID);
+        players.sort((a,b) => b.mmr - a.mmr); //descending order
+        let team1 = [players[0].userid, players[3].userid, players[4].userid];
+        let team2 = [players[1].userid, players[2].userid, players[5].userid];
+        let t1Players = '';
+        let t2Players = '';
+        for(let player of team1){
+            if(t1Players != '') t1Players += ',';
+            t1Players += `<@!${player}>`;
+        };
+        for(let player of team2){
+            if(t2Players != '') t2Players += ',';
+            t2Players += `<@!${player}>`;
+        };
+        // send message
+        let embed = new MessageEmbed();
+        embed.setTitle(`Match #${matchID} - Team Formation`)
+            .addField('Team 1', `Players: ${t1Players}`)
+            .addField('Team 2', `Players: ${t2Players}`)
+            .setFooter(footer)
+            .setColor(rlColor);
+        message.channel.send(embed);
+        handleTeams(message, team1, team2, matchID);
+        //await handleMmr(message, team1, team2, matchID);
 }
 
 const handleTeams = async (message, team1, team2, matchID) => {
@@ -148,38 +308,35 @@ const handleMmr = async (message, team1, team2, matchID) => {
     let channel = message.guild.channels.cache.get(c => c.name == `match-results`);
     let embed = new MessageEmbed().setColor(rlColor).setFooter(footer);
     team1.forEach(async userid => {
-        let mmr = await db.getMmr(userID);
-        let gamesPlayed = await db.getWins(userID) + await db.getLosses(userID);
+        let mmr = await db.getMmr(userid);
+        let gamesPlayed = await db.getWins(userid) + await db.getLosses(userid);
         let k = 60 - (gamesPlayed*2);
         k = k<20 ? 20 : k;
         let newMmr = calculateElo(mmr, highestT2, client.result.get(userid), k);
         await db.updateMmr(userid, newMmr);
         newMMr > mmr ? await db.addWin(userid) : await db.addLoss(userid);
-        client.players.set(userid, newMmr);
         //TODO: send embed to channel match-results
         // channel.send()
     })
 
     team2.forEach(async userid => {
-        let mmr = await db.getMmr(userID);
-        let gamesPlayed = await db.getWins(userID) + await db.getLosses(userID);
+        let mmr = await db.getMmr(userid);
+        let gamesPlayed = await db.getWins(userid) + await db.getLosses(userid);
         let k = 60 - (gamesPlayed*2);
         k = k<20 ? 20 : k;
         let newMmr = calculateElo(mmr, highestT1, client.result.get(userid), k);
         await db.updateMmr(userid, newMmr);
-        client.players.set(userid, newMmr);
         channel.send()
         
     })
 
 }
 
+
 module.exports = {
-    captain1: this.captain1,
-    captain2: this.captain2,
-    players: this.users,
     captains: captains,
-    balanced, balanced,
+    balanced: balanced,
     random: random,
     handleTeams: handleTeams,
+    handleMmr: handleMmr,
 }

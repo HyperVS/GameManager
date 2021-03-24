@@ -14,6 +14,17 @@ const global = {
             [array[i], array[j]] = [array[j], array[i]];
         }
         return array;
+    },
+    matchExists: (array, matchID) => {
+        for(i=0; i<array.length; i++){
+			if(array[i].matchID === matchID) return true;
+		}
+        return false
+    },
+    getMatch: (array, matchID) => {
+        for(i=0; i<array.length; i++){
+			if(array[i].matchID === matchID) return array[i];
+		}
     }
 }
 

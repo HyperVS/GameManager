@@ -8,14 +8,17 @@ module.exports = {
         if (!message.guild || message.author.bot) return;
         isCool(message);
         if(!message.content.startsWith(prefix)) return;
+        const embed = new MessageEmbed().setColor(rlColor);
         const args = message.content.slice(prefix.length).split(/ +/);
         const commandName = args.shift().toLowerCase();
         const command = client.commands.get(commandName)
             || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
         if (!command) return console.log(`ERROR: Command ${commandName} does not exist!`);
+        if(command.admin && !message.member.hasPermission('ADMINISTRATOR')){
+            embed.setDescription('You do not have permissions to execute this command!');
+            return message.channel.send(embed);
+        }
         if((command.args == 0 && args.length != 0) || (command.args > 0 && args.length > command.args)){
-            const embed = new MessageEmbed();
-            embed.setColor(rlColor);
             embed.setDescription(`<@!${message.author.id}> wrong usage of command! Correct usage: ${command.usage}`)
             return message.channel.send(embed);
         }
