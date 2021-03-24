@@ -18,7 +18,7 @@ module.exports = {
 
 		embed.setDescription("Please react to indicate the outcome of the game");
 
-		let msg = await message.channel.send(embed);
+		let msg = message.channel.send(embed);
 		try{
 			msg.react('emoji1');
 			msg.react('emoji2');
