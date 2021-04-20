@@ -1,13 +1,15 @@
 const { MessageEmbed, Collection } = require('discord.js');
 const { rlColor, prefix } = require('../../config.json');
+const { handleMmr } = require('../../processes/voting');
 
 module.exports = {
 	name: 'report',
 	aliases: ['r'],
 	args: 0,
 	usage: `${prefix}report`,
-	execute(client, message, args){
+	async execute(client, message, args){
 		let embed = new MessageEmbed().setColor(rlColor);
+
 		if(!client.matches.has(message.author.id)){
 			embed.setDescription("You are not in a match!");
 			return message.channel.send(embed);
@@ -15,65 +17,91 @@ module.exports = {
 		
 		let results = client.results;
 		let matchID = client.matches.get(message.author.id);
+		
+		let team1 = client.teams.get(matchID).team1;
+		let team2 = client.teams.get(matchID).team2;
+	
+		embed.setDescription(`<@${message.author.id}>, please react to indicate the outcome of the game"`);
 
-		embed.setDescription("Please react to indicate the outcome of the game");
-
-		let msg = message.channel.send(embed);
+		let msg = await message.channel.send(embed);
 		try{
-			msg.react('emoji1');
-			msg.react('emoji2');
+			msg.react('🇼');
+			msg.react('🇱');
 		} catch(error){
 			console.log(error);
 		}
 
-		const filter1 = (reaction, user) => {
-			return ['emojii1', 'emoji2'].includes(reaction.emoji.name) && user.id == captain1;
+		const filter = (reaction, user) => {
+			return ['🇼', '🇱'].includes(reaction.emoji.name) && user.id === message.author.id;
 		}
 
-		const filter2 = (reaction, user) => {
-			return ['emoji1', 'emoji2'].includes(reaction.emoji.name) && user.id == captain2;
-		}
+		const collector = msg.createReactionCollector(filter, {max: 1});
 
-		const collector1 = msg.createReactionCollector(filter1);
-
-		collector1.on('collect', collected => {
-			let reaction = collected.first();
+		collector.on('collect', (reaction, user) => {
 			switch(reaction.emoji.name){
-				case 'emoji1':
-					results.set(user)
+				case '🇼':
+					results.set(user.id, "win")
 					break;
-				case 'emoji2':
-					
+				case '🇱':
+					results.set(user.id, "loss")
 					break;
+			}
+		})
+
+		let r = [...results.keys()];
+		if(r.some(userid => team1.includes(userid)) && r.some(userid => team2.includes(userid))){
+
+			let res = [];
+			for(let userid of r){
+				res.push(results.get(userid))
+			}
+
+			if(res.includes("win") && res.includes("loss")){
+				// no need for all players to report
+				if(team1.includes(res[0]) && results.get(res[0]) == "win"){
+					// team1 won
+					team1.forEach(userid => {
+						results.set(userid, "win")
+					})
+					team2.forEach(userid => {
+						results.set(userid, "loss")
+					})
+				} else{
+					// team2 won
+					team2.forEach(userid => {
+						results.set(userid, "win")
+					})
+					team1.forEach(userid => {
+						results.set(userid, "loss")
+					})
 				}
-		})
-	
-		collector.on('end', () => {
-			
-		})
-	
 
+				handleMmr(message, team1, team2, matchID);
 
-		// if(!findMatch(results, matchID)) client.results.push({matchID: matchID, collection: new Collection()});
-		// let match = getMatch(results, matchID);
-		// switch(args[0].toLowerCase()){
-		// 	case 'w':
-		// 		match.collection.set(message.author.id, 'win')
-		// 		embed.setDescription(`<@${message.author.id}> voted WIN.`)
-		// 		message.channel.send(embed)
-		// 		break;
-		// 	case 'l':
-		// 		match.collection.set(message.author.id, 'loss')
-		// 		embed.setDescription(`<@${message.author.id}> voted LOSS.`)
-		// 		message.channel.send(embed)
-		// 		break;
-		// 	default:
-		// 		embed.setDescription("Incorrect usage of command. Use !help report for help.")
-		// 		return message.channel.send(embed);
-		// }
+			} else {
+				// all players need to report
+				embed.setDescription("@everyone, please react to indicate the outcome of the game")
+				let newMsg = await message.channel.send(embed);
+				try{
+					newMsg.react('🇼');
+					newMsg.react('🇱');
+				} catch(error){
+					console.log(error);
+				}
 
-		// if(match.collection.size == 6){
-			
-		// }
+				const collector2 = newMsg.createReactionCollector(filter);
+
+				collector2.on('collect', (reaction, user) => {
+					switch(reaction.emoji.name){
+						case '🇼':
+							results.set(user.id, "win")
+							break;
+						case '🇱':
+							results.set(user.id, "loss")
+							break;
+					}
+				})
+			}
+		};
 	}
 }

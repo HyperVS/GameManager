@@ -26,13 +26,13 @@ module.exports = {
             client.embeds.clear();
             switch(mostVotes){
                 case 'c':
-                    voting.captains(message, matchID, users[0])
+                    voting.captains(client, message, matchID, users[0])
                     break;
                 case 'r':
-                    voting.random(message, matchID, users[0])
+                    voting.random(client, message, matchID, users[0])
                     break;
                 case 'b':
-                    voting.balanced(message, matchID, users[0])
+                    voting.balanced(client, message, matchID, users[0])
                     break;
             }
         }

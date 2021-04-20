@@ -16,19 +16,13 @@ module.exports = {
     usage: `${prefix}queue`,
 	async execute(client, message, args){
         const embed = new MessageEmbed();
-        if (!queueChannels.includes(message.channel.id)) {
-            message.delete();
-            return message.author.send("Wrong channel retard");
-        }
+        // if (!queueChannels.includes(message.channel.id)) {
+        //     message.delete();
+        //     return message.author.send("Wrong channel retard");
+        // }
 
         const server = message.guild;
-
-        const queue = client.queues.get(`${args[0].toUpperCase()}queue`);
-        if (queue === undefined) {
-            embed.setTitle("Unknown game :(")
-            embed.addField("List of supported games: ", supportedGames);
-            return message.channel.send(embed);
-        }
+        const queue = client.queues.get()
 
         if(queue.has(message.author.id)){
             embed.setColor(rlColor)
