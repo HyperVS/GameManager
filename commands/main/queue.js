@@ -16,13 +16,15 @@ module.exports = {
     usage: `${prefix}queue`,
 	async execute(client, message, args){
         const embed = new MessageEmbed();
-        // if (!queueChannels.includes(message.channel.id)) {
-        //     message.delete();
-        //     return message.author.send("Wrong channel retard");
-        // }
+        let queue = null
 
-        const server = message.guild;
-        const queue = client.queues.get()
+        supportedGames.forEach((game) => {
+            console.log(game);
+            // console.log(game.name)
+            if(message.channel.id == game.id) queue = client.queues.get(game.name);
+        })
+
+        if(queue == null) return message.delete();
 
         if(queue.has(message.author.id)){
             embed.setColor(rlColor)

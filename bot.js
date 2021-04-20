@@ -3,6 +3,7 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const path = require('path');
+const { supportedGames } = require('./config.json');
 
 client.embeds = new Discord.Collection();
 client.commands = new Discord.Collection();
@@ -14,6 +15,11 @@ client.votes = new Discord.Collection();
 client.results = new Discord.Collection();
 client.teams = new Discord.Collection();
 client.queues = new Discord.Collection();
+
+supportedGames.forEach((game) => {
+	client.queues.set(`${game.name}`, new Discord.Collection());
+	console.log(client.queues)
+})
 
 // Command handler
 fs.readdirSync('./commands').forEach(folder => {

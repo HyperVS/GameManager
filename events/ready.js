@@ -1,6 +1,6 @@
 const connection = require('../db/connection.js');
 const db = require('../db/orm');
-const { unrankedRole, supportedGames } = require('../config.json');
+const { unrankedRole } = require('../config.json');
 
 
 module.exports = {
@@ -8,12 +8,6 @@ module.exports = {
     async run(client) {
         let guild = client.guilds.cache.get([...client.guilds.cache.keys()][0]);
         console.log(`${client.user.username} is online!`);
-
-        supportedGames.forEach((game) => {
-            game = Object.keys(game).toString();
-            console.log(game);
-            client.queues.set(`${game}queue`, new Discord.Collection());
-        })
 
         connection.connect(async err => {
             if(err) throw err;

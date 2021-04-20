@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { prefix } = require('../../config.json');
+const Game = require("../../types/Games")
 require('dotenv').config();
-const path = require('path');
 
 module.exports = {
     name: 'setup',
@@ -36,15 +36,15 @@ module.exports = {
         await server.channels.create('game-results', {parent: valCategory});
         await server.channels.create('10mans-updates', {parent: valCategory});
         await server.channels.create('10 mans', {type: 'voice', parent: valCategory});
-
+        
         fs.readFile('./config.json', (err, data) => {
             if(err) console.log(err);
             let object = JSON.parse(data);
-            object.supportedGames = [{
-                "RL": rlQueue.id,
-                "CS": csQueue.id,
-                "VAL": valQueue.id
-            }];
+            object.supportedGames = [
+                new Game("RL", rlQueue.id, 6),
+                new Game("CS", csQueue.id, 10),
+                new Game("VAL", valQueue.id, 10)
+            ];
             fs.writeFileSync('./config.json', JSON.stringify(object, null, 4));
         })
     }
