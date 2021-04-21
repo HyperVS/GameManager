@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const { rlColor, prefix } = require('../../config.json');
+const { rlColor, prefix, supportedGames } = require('../../config.json');
 
 module.exports = {
 	name: 'leave',
@@ -8,26 +8,21 @@ module.exports = {
     usage: `${prefix}leave`,
 	execute(client, message, args){
         
-
+        const embed = new MessageEmbed().setColor(rlColor);
         let isInQueue = false;
         let queue;
         let queueGame;
-        try {
-            client.queues.each((value, key) => {
-                if (value.has(message.author.id)) {
-                    isInQueue = true;
-                    queue = value
-                    queueGame = key.replace("queue", "");
-                    throw "breakLoop";
-                }
-            })
-        } catch (e) {
-            console.log(e)
-            if (e != "breakLoop") throw e;
-        }
 
+        for(game of supportedGames){
+            queue = client.queues.get(game);
+            queueGame = game.name;
+            if(queue.has(message.author.id)){
+                isInQueue = true;
+                break;
+            }
+        }
+       
         if (!isInQueue) {
-            const embed = new MessageEmbed();
             embed.setColor(rlColor)
             .setDescription(`<@${message.author.id}> you are not in any queues!`)
             return message.channel.send(embed);
@@ -35,9 +30,7 @@ module.exports = {
 
         else {
             queue.delete(message.author.id);
-            const embed = new MessageEmbed();
-            embed.setColor(rlColor)
-            .addField(`${message.author.username} has left the ${queueGame} queue.`, `There are now ${queue.size} in the queue.`);
+            embed.addField(`${message.author.username} has left the ${queueGame} queue.`, `There are now ${queue.size} in the queue.`);
             return message.channel.send(embed);
         }
     }

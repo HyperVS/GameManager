@@ -16,16 +16,16 @@ module.exports = {
     usage: `${prefix}queue`,
 	async execute(client, message, args){
         const embed = new MessageEmbed();
-        let queue = null
 
-        supportedGames.forEach((game) => {
-            console.log(game);
-            // console.log(game.name)
-            if(message.channel.id == game.id) queue = client.queues.get(game.name);
-        })
+        setQueue = async () => {
+            for(game of supportedGames){
+                if(message.channel.id == game.channelID) return client.queues.get(game);
+            }
+        }
 
-        if(queue == null) return message.delete();
-
+        let queue = await setQueue();
+        if(queue == undefined) return message.reply('please use this command in the specified channels.');
+        
         if(queue.has(message.author.id)){
             embed.setColor(rlColor)
             .setDescription(`<@!${message.author.id}> you are already in the queue!`);

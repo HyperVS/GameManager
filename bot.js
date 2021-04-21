@@ -17,7 +17,7 @@ client.teams = new Discord.Collection();
 client.queues = new Discord.Collection();
 
 supportedGames.forEach((game) => {
-	client.queues.set(`${game.name}`, new Discord.Collection());
+	client.queues.set(game, new Discord.Collection());
 	console.log(client.queues)
 })
 
