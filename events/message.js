@@ -1,5 +1,5 @@
 const isCool = require("../processes/isCool");
-const { prefix, rlColor } = require('../config.json');
+const { prefix, rlColor, supportedGames } = require('../config.json');
 const { MessageEmbed } = require('discord.js');
 
 module.exports = {
@@ -22,9 +22,17 @@ module.exports = {
             embed.setDescription(`<@!${message.author.id}> wrong usage of command! Correct usage: ${command.usage}`)
             return message.channel.send(embed);
         }
+
+        let game
+		for(Game of supportedGames){
+			if(message.channel.parent.id == game.parentID){
+				game = Game;
+			}
+		}
+
         // Command handler
         try {
-            command.execute(client, message, args);
+            command.execute(client, message, args, game);
         } catch (error) {
             console.error(error);
             message.reply('there was an error trying to execute that command!');

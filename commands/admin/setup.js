@@ -41,9 +41,9 @@ module.exports = {
             if(err) console.log(err);
             let object = JSON.parse(data);
             object.supportedGames = [
-                new Game("RL", rlQueue.id, 6),
-                new Game("CS", csQueue.id, 10),
-                new Game("VAL", valQueue.id, 10)
+                new Game("RL", rlQueue.id, rlCategory.id, 6, "BLUE"),
+                new Game("CS", csQueue.id, csCategory.id, 10, "YELLOW"),
+                new Game("VAL", valQueue.id, valCategory.id, 10, "RED")
             ];
             fs.writeFileSync('./config.json', JSON.stringify(object, null, 4));
         })
