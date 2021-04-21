@@ -15,12 +15,13 @@ module.exports = {
     usage: `${prefix}queue`,
 	async execute(client, message, args){
         const embed = new MessageEmbed();
-        let queue = client.games.find((game) => message.channel.id == game.channelID).queue;
-
-        console.log(queue)
+        const queue = client.games.find((game) => message.channel.id == game.channelID).queue;
 
         if(queue == undefined) return message.delete();
 
+        let queue = await setQueue();
+        if(queue == undefined) return message.reply('please use this command in the specified channels.');
+        
         if(queue.has(message.author.id)){
             embed.setColor(rlColor)
             .setDescription(`<@!${message.author.id}> you are already in the queue!`);
