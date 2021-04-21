@@ -6,7 +6,6 @@ const {
     footer,
     max,
     rlColor,
-    supportedGames
 } = require('../../config.json');
 
 module.exports = {
@@ -16,15 +15,11 @@ module.exports = {
     usage: `${prefix}queue`,
 	async execute(client, message, args){
         const embed = new MessageEmbed();
-        let queue = null
+        let queue = client.games.find((game) => message.channel.id == game.channelID).queue;
 
-        supportedGames.forEach((game) => {
-            console.log(game);
-            // console.log(game.name)
-            if(message.channel.id == game.id) queue = client.queues.get(game.name);
-        })
+        console.log(queue)
 
-        if(queue == null) return message.delete();
+        if(queue == undefined) return message.delete();
 
         if(queue.has(message.author.id)){
             embed.setColor(rlColor)
