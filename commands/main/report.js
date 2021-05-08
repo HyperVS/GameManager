@@ -1,5 +1,5 @@
 const { MessageEmbed, Collection } = require('discord.js');
-const { rlColor, prefix } = require('../../config.json');
+const { footer, prefix } = require('../../config.json');
 const { handleMmr } = require('../../processes/voting');
 
 module.exports = {
@@ -7,8 +7,8 @@ module.exports = {
 	aliases: ['r'],
 	args: 0,
 	usage: `${prefix}report`,
-	async execute(client, message, args){
-		let embed = new MessageEmbed().setColor(rlColor);
+	async execute(client, message, args, game){
+		let embed = new MessageEmbed().setColor(game.color).setFooter(game.maxPlayers+footer);
 
 		if(!client.matches.has(message.author.id)){
 			embed.setDescription("You are not in a match!");

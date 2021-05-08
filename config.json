@@ -4,23 +4,29 @@
     "rlColor": "BLUE",
     "unrankedRole": "800095705027969056",
     "max": "6",
-    "footer": "6mans | Twisted's Tweakers",
+    "footer": "mans | Twisted's Tweakers",
     "thumbnail": "https://cdn.discordapp.com/attachments/423938531485024256/794597686891511828/a435aafc4601e408d2fa167363d7b280.png",
     "supportedGames": [
         {
             "name": "RL",
             "channelID": "833993938628640809",
-            "maxPlayers": 6
+            "parentID": "833993937214504980",
+            "maxPlayers": 6,
+            "color": "BLUE"
         },
         {
             "name": "CS",
             "channelID": "833993943112089600",
-            "maxPlayers": 10
+            "parentID": "833993941564260362",
+            "maxPlayers": 10,
+            "color": "YELLOW"
         },
         {
             "name": "VAL",
             "channelID": "833993947423571991",
-            "maxPlayers": 10
+            "parentID": "833993945885048832",
+            "maxPlayers": 10,
+            "color": "RED"
         }
     ]
 }

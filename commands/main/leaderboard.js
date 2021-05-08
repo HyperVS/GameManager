@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js');
-const { prefix, rlColor, footer } = require('../../config.json');
+const { prefix, footer, supportedGames } = require('../../config.json');
 const db = require('../../db/orm');
 
 module.exports = {
@@ -7,13 +7,13 @@ module.exports = {
 	aliases: ['lb', 'leaderboards'],
 	args: 0,
 	usage: `${prefix}leaderboard`,
-	async execute (client, message, args){
+	async execute (client, message, args, game){
 		let players = await db.getAllUsers('RLusers');
 		let current = players.slice(0, 10);
 		let counter = 0;
         const embed = new MessageEmbed()
-        .setColor(rlColor)
-        .setFooter(`${footer}`)
+        .setColor(game.color)
+        .setFooter(`${game.maxPlayers}`+footer)
 		.setTitle("Leaderboard");
         let desc = '';
         current.forEach(async (player, i, array) => {

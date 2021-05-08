@@ -6,31 +6,24 @@ module.exports = {
 	aliases: ['l'],
     args: 0,
     usage: `${prefix}leave`,
-	execute(client, message, args){
+	execute(client, message, args, game){
         
-        const embed = new MessageEmbed().setColor(rlColor);
+        const embed = new MessageEmbed();
         let isInQueue = false;
-        let queue;
-        let queueGame;
-
-        for(game of supportedGames){
-            queue = client.queues.get(game);
-            queueGame = game.name;
-            if(queue.has(message.author.id)){
-                isInQueue = true;
-                break;
-            }
-        }
+        let queue = client.queues.get(game);
+        if(queue.has(message.author.id)) isInQueue = true;
+    
+        embed.setColor(game.color);
        
         if (!isInQueue) {
-            embed.setColor(rlColor)
+            embed.setColor(game.color)
             .setDescription(`<@${message.author.id}> you are not in any queues!`)
             return message.channel.send(embed);
         }
 
         else {
             queue.delete(message.author.id);
-            embed.addField(`${message.author.username} has left the ${queueGame} queue.`, `There are now ${queue.size} in the queue.`);
+            embed.addField(`${message.author.username} has left the ${game.name} queue.`, `There are now ${queue.size} in the queue.`);
             return message.channel.send(embed);
         }
     }

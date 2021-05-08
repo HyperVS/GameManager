@@ -17,17 +17,12 @@ client.teams = new Discord.Collection();
 client.games = new Discord.Collection();
 
 supportedGames.forEach((game) => {
-<<<<<<< HEAD
 	client.games.set(`${game.name}`, {
 		channelID: game.channelID,
 		maxPlayers: game.maxPlayers,
 		queue: new Discord.Collection()
 	});
 	console.log(client.games)
-=======
-	client.queues.set(game, new Discord.Collection());
-	console.log(client.queues)
->>>>>>> 700223dce53dc9f8cd979b15bb9e41faf3f0d83b
 })
 
 // Command handler
