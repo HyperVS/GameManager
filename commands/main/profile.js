@@ -1,5 +1,4 @@
 const { MessageEmbed } = require('discord.js');
-const { stat } = require('fs');
 const { rlColor, footer, prefix } = require('../../config.json');
 const db = require('../../db/orm');
 
@@ -9,8 +8,8 @@ module.exports = {
 	args: 0,
 	usage: `${prefix}profile`,
 	async execute(client, message, args, game){
-		let wins = await db.getWins(message.author.id);
-		let losses = await db.getLosses(message.author.id);
+		let wins = await db.getWins(message.author.id, 'RLusers');
+		let losses = await db.getLosses(message.author.id, 'RLusers');
 		const embed = new MessageEmbed().setColor(game.color).setFooter(game.maxPlayers+footer)
 		.setTitle(`${message.author.username}'s Profile`)
 		.setThumbnail(message.author.avatarURL())

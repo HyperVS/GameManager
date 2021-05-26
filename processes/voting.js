@@ -210,7 +210,6 @@ const random = async (client, message, matchID, users) => {
         .setColor(rlColor);
     message.channel.send(embed);
     handleTeams(client, message, team1, team2, matchID);
-    //await handleMmr(message, team1, team2)
 }
 
 const balanced = async (client, message, matchID, users) => {
@@ -244,7 +243,6 @@ const balanced = async (client, message, matchID, users) => {
             .setColor(rlColor);
         message.channel.send(embed);
         handleTeams(client, message, team1, team2, matchID);
-        //await handleMmr(message, team1, team2, matchID);
 }
 
 const handleTeams = async (client, message, team1, team2, matchID) => {
@@ -306,7 +304,7 @@ const handleMmr = async (message, team1, team2, matchID) => {
     team2.sort(async (a,b) => await db.getMmr(b) - await db.getMmr(a));
     let highestT1 = await db.getMmr(team1[0]);
     let highestT2 = await db.getMmr(team2[0]);
-    let channel = message.guild.channels.cache.get(c => c.name == `match-results`);
+    let channel = message.guild.channels.cache.get(c => c.name == `game-results`);
     let embed = new MessageEmbed().setColor(rlColor).setFooter(footer);
     team1.forEach(async userid => {
         let mmr = await db.getMmr(userid);
@@ -316,8 +314,8 @@ const handleMmr = async (message, team1, team2, matchID) => {
         let newMmr = calculateElo(mmr, highestT2, client.result.get(userid), k);
         await db.updateMmr(userid, newMmr);
         newMMr > mmr ? await db.addWin(userid) : await db.addLoss(userid);
-        //TODO: send embed to channel match-results
-        // channel.send()
+        //TODO: send embed to channel game-results
+        channel.send()
     })
 
     team2.forEach(async userid => {
@@ -327,8 +325,8 @@ const handleMmr = async (message, team1, team2, matchID) => {
         k = k<20 ? 20 : k;
         let newMmr = calculateElo(mmr, highestT1, client.result.get(userid), k);
         await db.updateMmr(userid, newMmr);
+        newMMr > mmr ? await db.addWin(userid) : await db.addLoss(userid);
         channel.send()
-        
     })
 
 }

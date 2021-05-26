@@ -23,11 +23,13 @@ module.exports = {
             return message.channel.send(embed);
         }
 
-        let game
+        let game;
 		for(Game of supportedGames){
-			if(message.channel.parent.id == game.parentID){
-				game = Game;
-			}
+            try {
+                if(message.channel.parent.id == Game.parentID) game = Game;
+            } catch (error) {
+                console.log(error);
+            }
 		}
 
         // Command handler

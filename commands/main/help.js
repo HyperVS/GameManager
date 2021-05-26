@@ -1,5 +1,7 @@
 const { prefix, footer } = require('../../config.json');
 const { MessageEmbed } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = {
     name: 'help',
@@ -19,13 +21,21 @@ module.exports = {
             .setDescription(`Command usage: ${command.usage}`)
             return message.channel.send(embed);
         }
-        let msg = '';
+        
+        let categories = new Map();
         const commands = [...client.commands.keys()].filter(command => !client.commands.get(command).admin);
-        commands.forEach(command => {
-            msg+= `${command}\n`
+        fs.readdirSync('./commands').forEach(folder => {
+            categories.set(folder, []);
+            fs.readdirSync(path.resolve('commands', folder)).forEach(file => {
+                categories.get(folder).push(path.basename(file, path.extname(file)));
+            })
         })
-        embed.setTitle('Available commands:')
-        .setDescription(msg)
+        embed.setTitle('Available commands:');
+        [...categories.keys()].filter(category => category != 'admin').forEach(category => {
+            embed.addField(category, categories.get(category))
+        })
+        
         return message.channel.send(embed);
+        
     }
 }

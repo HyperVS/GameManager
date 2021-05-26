@@ -18,13 +18,19 @@ module.exports = {
         let desc = '';
         current.forEach(async (player, i, array) => {
 			let mmr = await db.getMmr(player, 'RLusers')
-			desc+= `${players.indexOf(player)+1}: <@!${player}> - ${mmr}\n`
+			if(counter == 0){
+				client.users.fetch(player).then(user => embed.setThumbnail(user.displayAvatarURL({ dynamic: true })))
+				desc+= `${players.indexOf(player)+1}: <@!${player}> - ${mmr} :star:\n`
+			}
+			else{
+				desc+= `${players.indexOf(player)+1}: <@!${player}> - ${mmr}\n`;
+			}
 			if (++counter == array.length) desc+= `----------------------------------------------------\n`;
 		})
 		let userMmr = await db.getMmr(message.author.id, 'RLusers');
 		desc+= `${players.indexOf(message.author.id)+1}: <@!${message.author.id}> - ${userMmr}\n`
         embed.setDescription(desc);
-		message.channel.send(embed);
+		return message.channel.send(embed);
 	}
 }
 
