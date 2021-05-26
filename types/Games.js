@@ -1,6 +1,6 @@
 module.exports = class Game {
     /**
-     * 
+     * Creates new Game
      * @param {String} name 
      * @param {String} channelID
      * @param {String} parentID 

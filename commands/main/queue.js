@@ -11,10 +11,11 @@ module.exports = {
 	aliases: ['q'],
     args: 0,
     usage: `${prefix}queue`,
-	async execute(client, message, args, game){
+	async execute(client, message, args){
+        const game = client.games.find((game) => message.channel.id == game.channelID)
+        const queue = game.queue;
+        
         const embed = new MessageEmbed().setColor(game.color).setFooter(game.maxPlayers+footer);
-        let queue;
-        if(message.channel.id == game.channelID) queue = client.queues.get(game);
         if(queue == undefined) return message.reply('please use this command in the specified channels.');
         
         if(queue.has(message.author.id)){

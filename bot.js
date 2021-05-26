@@ -14,11 +14,15 @@ client.counts = new Discord.Collection();
 client.votes = new Discord.Collection();
 client.results = new Discord.Collection();
 client.teams = new Discord.Collection();
-client.queues = new Discord.Collection();
+client.games = new Discord.Collection();
 
 supportedGames.forEach((game) => {
-	client.queues.set(game, new Discord.Collection());
-	console.log(client.queues)
+	client.games.set(`${game.name}`, {
+		channelID: game.channelID,
+		maxPlayers: game.maxPlayers,
+		queue: new Discord.Collection()
+	});
+	console.log(client.games)
 })
 
 // Command handler
