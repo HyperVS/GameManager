@@ -3,6 +3,8 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 const path = require('path');
+
+const Game = require("./types/Game");
 const { supportedGames } = require('./config.json');
 
 client.embeds = new Discord.Collection();
@@ -16,13 +18,9 @@ client.results = new Discord.Collection();
 client.teams = new Discord.Collection();
 client.games = new Discord.Collection();
 
+// Makes all supported games available from to client.games
 supportedGames.forEach((game) => {
-	client.games.set(`${game.name}`, {
-		channelID: game.channelID,
-		maxPlayers: game.maxPlayers,
-		queue: new Discord.Collection()
-	});
-	console.log(client.games)
+	client.games.set(game.name, new Game(game.name, game.channelID, game.parentID, game.maxPlayers, game.color));
 })
 
 // Command handler

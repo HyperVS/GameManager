@@ -1,4 +1,5 @@
 const { MessageEmbed } = require('discord.js');
+const getGame = require('../../helpers/getGame');
 const { rlColor, prefix, supportedGames } = require('../../config.json');
 
 module.exports = {
@@ -6,18 +7,21 @@ module.exports = {
 	aliases: ['l'],
     args: 0,
     usage: `${prefix}leave`,
-	execute(client, message, args, game){
+	execute(client, message, args){
         
-        const embed = new MessageEmbed();
+        // Prepare message
+        
         let isInQueue = false;
-        let queue = client.queues.get(game);
+        
+        const game = getGame(client, message);
+        const queue = game.queue;
+        
+        const embed = new MessageEmbed().setColor(game.color);
+
         if(queue.has(message.author.id)) isInQueue = true;
-    
-        embed.setColor(game.color);
        
         if (!isInQueue) {
-            embed.setColor(game.color)
-            .setDescription(`<@${message.author.id}> you are not in any queues!`)
+            embed.setDescription(`<@${message.author.id}> you are not in any queues!`)
             return message.channel.send(embed);
         }
 

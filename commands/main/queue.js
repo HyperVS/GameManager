@@ -1,5 +1,6 @@
 const { MessageEmbed } = require('discord.js');
 const db = require('../../db/orm');
+const getGame = require('../../helpers/getGame');
 const { 
     prefix, 
     thumbnail, 
@@ -12,11 +13,13 @@ module.exports = {
     args: 0,
     usage: `${prefix}queue`,
 	async execute(client, message, args){
-        const game = client.games.find((game) => message.channel.id == game.channelID)
+        // Find the game the user is trying to queue
+        const game = getGame(client, message)
+        if(game == undefined) return message.reply('please use this command in the specified channels.');
         const queue = game.queue;
-        
+
+        // Prepare message
         const embed = new MessageEmbed().setColor(game.color).setFooter(game.maxPlayers+footer);
-        if(queue == undefined) return message.reply('please use this command in the specified channels.');
         
         if(queue.has(message.author.id)){
             embed.setDescription(`<@!${message.author.id}> you are already in the queue!`);
@@ -25,20 +28,26 @@ module.exports = {
         if(client.matches.has(message.author.id)){
             embed.setDescription(`<@!${message.author.id}> you are already in a match!`);
             return message.channel.send(embed);
-        }
-        queue.set(message.author.id, message.author.username)
-        if(queue.size == 1) client.queueTime = new Date();
+        } 
         
-        if(queue.size == 1){
+        // FIXME: fix status and queuetime
+        queue.addPlayer(message.author.id, message.author.username)
+        
+        if(queue.getLength() == 1){
             embed.setThumbnail(thumbnail);
             embed.setTitle(`1 player is in the ${game.name} queue`)
             embed.addField('Want to join?', `Type !q to join this ${game.maxPlayers}man!`)
+            client.queueTime = new Date();
         }
-        else embed.setTitle(`${queue.size} players are in the queue`);
+        else embed.setTitle(`${queue.getLength()} players are in the queue`);
         embed.setDescription(`<@${message.author.id}> has joined.`);
         message.channel.send(embed);
-        if(queue.size != game.maxPlayers) return;
 
+        // If q is not ready to go, stop here and wait
+        if(queue.getLength() != game.maxPlayers) return;
+
+        // FIXME remove client from usersArray
+        const server = message.guild;
         client.usersArray = Array.from(queue.keys());
         let voicePerms = [{
             id: server.roles.everyone,
@@ -63,6 +72,7 @@ module.exports = {
             if(queueMembers != '') queueMembers += ',';
             queueMembers += `<@${member}>`;
         };
+        //FIXME db.createMatch() ??
         let matchID = await db.createMatch(queue);
         queue.clear();
         await server.channels.create(`match-${matchID}`, {type: 'category'})
@@ -71,7 +81,7 @@ module.exports = {
             permissionOverwrites: voicePerms,
             parent: server.channels.cache.find(c => c.name == `match-${matchID}` && c.type == "category"),
             userLimit: game.maxPlayers
-        })
+        });console.log(channel)
         let redirectLink = await channel.createInvite({
             maxAge: 120, // 2 minutes
             maxUses: game.maxPlayers

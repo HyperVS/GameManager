@@ -5,7 +5,7 @@
   "main": "bot.js",
   "scripts": {
     "dev": "nodemon bot.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,8 @@
     "node": "^15.4.0"
   },
   "devDependencies": {
+    "@types/jest": "^26.0.24",
+    "jest": "^27.0.6",
     "nodemon": "^2.0.6"
   }
 }

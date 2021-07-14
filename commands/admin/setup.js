@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { prefix } = require('../../config.json');
-const Game = require("../../types/Games")
+const Game = require("../../types/Game")
 require('dotenv').config();
 
 module.exports = {
@@ -13,7 +13,7 @@ module.exports = {
         if (process.env.DEV_MODE !== "TRUE") return;
 
         const server = message.guild;
-        const channel = server.channels.cache.find(channel=> (channel.name == 'Rocket League 6mans' || channel.name == 'CSGO 10mans') && channel.type == "category")
+        const channel = server.channels.cache.find(channel=> (channel.name == 'Rocket League 6mans' || channel.name == 'CSGO 10mans' || channel.name == "Valorant 10mans") && channel.type == "category")
         if(channel) return;
 
         const rlCategory = await server.channels.create('Rocket League 6mans', {type: 'category'});

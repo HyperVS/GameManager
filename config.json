@@ -9,24 +9,33 @@
     "supportedGames": [
         {
             "name": "RL",
-            "channelID": "833993938628640809",
-            "parentID": "833993937214504980",
+            "channelID": "864799110720520192",
+            "parentID": "864799109213585438",
             "maxPlayers": 6,
-            "color": "BLUE"
+            "color": "BLUE",
+            "queue": {
+                "list": []
+            }
         },
         {
             "name": "CS",
-            "channelID": "833993943112089600",
-            "parentID": "833993941564260362",
+            "channelID": "864799114389749771",
+            "parentID": "864799113199616001",
             "maxPlayers": 10,
-            "color": "YELLOW"
+            "color": "YELLOW",
+            "queue": {
+                "list": []
+            }
         },
         {
             "name": "VAL",
-            "channelID": "833993947423571991",
-            "parentID": "833993945885048832",
+            "channelID": "864799118496235540",
+            "parentID": "864799116851675167",
             "maxPlayers": 10,
-            "color": "RED"
+            "color": "RED",
+            "queue": {
+                "list": []
+            }
         }
     ]
 }
