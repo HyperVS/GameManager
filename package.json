@@ -4,8 +4,10 @@
   "description": "A Game Manager bot for a private discord server.",
   "main": "bot.js",
   "scripts": {
-    "dev": "nodemon bot.js",
-    "test": "jest"
+    "dev": "nodemon index.js",
+    "lint": "eslint .",
+    "test": "jest",
+    "precommit": "npm run lint && npm run test"
   },
   "repository": {
     "type": "git",
@@ -18,14 +20,14 @@
   },
   "homepage": "https://github.com/HyperVS/GameManager#readme",
   "dependencies": {
-    "discord.js": "^12.5.1",
+    "discord.js": "^12.5.3",
     "dotenv": "^8.2.0",
-    "iscool": "^2.0.1",
     "mysql": "^2.18.1",
     "node": "^15.4.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.24",
+    "eslint": "^7.31.0",
     "jest": "^27.0.6",
     "nodemon": "^2.0.6"
   }

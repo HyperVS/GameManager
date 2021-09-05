@@ -1,4 +1,4 @@
-const Queue = require('./Queue')
+const Queue = require("./Queue");
 
 module.exports = class Game {
     /**
@@ -38,4 +38,4 @@ module.exports = class Game {
         return this.color;
     }
 
-}
+};

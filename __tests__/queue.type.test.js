@@ -29,9 +29,9 @@ describe("Queue class", () => {
         expect(queue.getPlayers()).toStrictEqual(new Queue());
         expect(queue.getLength()).toEqual(0);
         expect(queue.getPlayer(123)).toBeUndefined();
-    })
+    });
     
     test("if the queue contains the player", () => {
-        expect(queue.has(123)).toBeFalsy()
-    })
-})
+        expect(queue.has(123)).toBeFalsy();
+    });
+});

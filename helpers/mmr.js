@@ -4,7 +4,7 @@ exports.calculateElo = (playerMmr, highestMmr, result, k) => {
     let e2 = Math.pow(10, (highestMmr/1000)); //1000 is base MMR hmmm
     let r1 = Math.floor((k*(s1-(e1/(e1+e2)))));
     return r1+playerMmr;
-}
+};
 
 /* Formula for getting k
 * k = 60 - (NUMBER_OF_GAMES * 2) 

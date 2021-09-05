@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const Discord = require("discord.js");
 
 module.exports = class Queue extends Discord.Collection {
 
@@ -18,7 +18,7 @@ module.exports = class Queue extends Discord.Collection {
         return this;
     }
 
-	/**
+    /**
 	 * Identical to [Map.get()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/get).
 	 * Gets an element with the specified key, and returns its value, or `undefined` if the element does not exist.
 	 * @param {string} ID - The key to get from this collection
@@ -28,7 +28,7 @@ module.exports = class Queue extends Discord.Collection {
         return super.get(ID);
     }
 
-/**
+    /**
 	 * Identical to [Map.set()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/set).
 	 * Sets a new element in the collection with the specified key and value.
 	 * @param {string} ID - The key of the element to add
@@ -39,7 +39,7 @@ module.exports = class Queue extends Discord.Collection {
         super.set(ID, username);
     }
 
-/**
+    /**
 	 * Identical to [Map.delete()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/delete).
 	 * Deletes an element from the collection.
 	 * @param {string} ID - The key to delete from the collection
@@ -48,4 +48,4 @@ module.exports = class Queue extends Discord.Collection {
     removePlayer(ID) {
         super.delete(ID);
     }
-}
+};

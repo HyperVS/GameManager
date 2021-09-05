@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+const mysql = require("mysql");
 const host = process.env.HOST || "96.58.110.215";
 
 var connection = mysql.createConnection({

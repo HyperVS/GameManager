@@ -1,4 +1,4 @@
-const Discord = require('discord.js');
+const Discord = require("discord.js");
 
 const client = {
     games: new Discord.Collection(),
@@ -12,15 +12,16 @@ const client = {
             set: jest.fn()
         }
     }
-}
+};
 
 const message = ({
     channel: {
-      send: jest.fn(),
+        parentID: "864799109213585438",
+        send: jest.fn(),
     },
     content: "",
     author: {
-      bot: false,
+        bot: false,
     },
     guild: {
         roles: {
@@ -35,17 +36,9 @@ const message = ({
                 
             })
         }
-    }
+    },
+    reply: jest.fn()
 });
-
-class db {
-    constructor() {
-        this.matches = 0;
-    }
-    createMatch(queue) {
-        ++this.matches;
-    }
-}
 
 module.exports = {
     client: client,

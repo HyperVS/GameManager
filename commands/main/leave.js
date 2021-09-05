@@ -1,13 +1,13 @@
-const { MessageEmbed } = require('discord.js');
-const getGame = require('../../helpers/getGame');
-const { rlColor, prefix, supportedGames } = require('../../config.json');
+const { MessageEmbed } = require("discord.js");
+const { getGame } = require("../../helpers/getGame");
+const { prefix } = require("../../config.json");
 
 module.exports = {
-	name: 'leave',
-	aliases: ['l'],
+    name: "leave",
+    aliases: ["l"],
     args: 0,
     usage: `${prefix}leave`,
-	execute(client, message, args){
+    execute(client, message){
         
         // Prepare message
         
@@ -21,7 +21,7 @@ module.exports = {
         if(queue.has(message.author.id)) isInQueue = true;
        
         if (!isInQueue) {
-            embed.setDescription(`<@${message.author.id}> you are not in any queues!`)
+            embed.setDescription(`<@${message.author.id}> you are not in any queues!`);
             return message.channel.send(embed);
         }
 
@@ -31,4 +31,4 @@ module.exports = {
             return message.channel.send(embed);
         }
     }
-}
+};
